@@ -87,3 +87,31 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #A88752;
 }
+
+/* 
+  V2 ACCESSIBILITY MODE
+  High contrast, larger type, reduced motion 
+*/
+.accessibility-mode {
+  --background: #FFFFFF;
+  --surface: #F0F0F0;
+  --ink: #000000;
+  --muted-ink: #222222;
+  --line: #000000;
+  --terracotta: #A00000;
+  
+  font-size: 1.15rem !important;
+  line-height: 1.6 !important;
+}
+
+.accessibility-mode * {
+  border-color: var(--line) !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+.accessibility-mode h1 { font-size: 2.5rem !important; font-weight: 800 !important; }
+.accessibility-mode h2 { font-size: 2rem !important; font-weight: 700 !important; }
+.accessibility-mode h3 { font-size: 1.5rem !important; font-weight: 700 !important; }
+.accessibility-mode p, .accessibility-mode span { font-weight: 500 !important; }
+

@@ -4,6 +4,7 @@ import "./globals.css";
 import Wordmark from "@/components/brand/Wordmark";
 import Link from "next/link";
 import { ShoppingBag, PlusCircle } from "lucide-react";
+import AccessibilityToggle from "@/components/ui/AccessibilityToggle";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -66,6 +67,8 @@ export default function RootLayout({
         <main className="flex-1">
           {children}
         </main>
+        
+        <AccessibilityToggle />
 
         {/* Editorial Footer */}
         <footer className="bg-[#1E211F] text-[#F5F0E8] border-t border-[#27344A] py-12 px-4 sm:px-6 lg:px-8">

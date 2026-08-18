@@ -56,9 +56,15 @@ export default function VoiceToForm({ onExtracted }: VoiceToFormProps) {
             location: data.location || undefined,
             specialStory: data.story || undefined,
           });
+        } else {
+          // Fallback: If AI quota exceeded, just dump the raw transcript into the story field
+          console.warn("AI extraction failed, falling back to raw transcript");
+          onExtracted({ specialStory: transcript });
         }
       } catch (error) {
         console.error("Failed to extract voice to form", error);
+        // Fallback: If network fails
+        onExtracted({ specialStory: transcript });
       } finally {
         setIsProcessing(false);
       }
