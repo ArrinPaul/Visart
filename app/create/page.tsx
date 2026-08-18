@@ -64,21 +64,31 @@ export default function CreatePage() {
     setErrorMessage(null);
 
     try {
-      // Step 1: AI Generation
+      // Step 1: AI Generation via Member B AI intelligence layer
       const generation = await generateListing(formData);
 
       // Step 2: Member C Storage upload if file is selected
       let finalImageUrl = formData.imagePreviewUrl || "";
       if (formData.imageFile) {
-        const uploadedUrl = await uploadProductImage(formData.imageFile);
-        if (uploadedUrl) {
-          finalImageUrl = uploadedUrl;
+        const uploadRes = await uploadProductImage(formData.imageFile);
+        if (uploadRes && uploadRes.url) {
+          finalImageUrl = uploadRes.url;
         }
       }
 
       // Step 3: Member C Persistence saveProduct
-      const productId = await saveProduct(formData, generation, finalImageUrl);
-      setCreatedProductId(productId);
+      const saved = await saveProduct({
+        inputData: formData,
+        generatedData: generation,
+        imageUrl: finalImageUrl,
+        artisan: {
+          name: "Local Artisan",
+          location: formData.location,
+          craft: formData.material,
+        },
+      });
+
+      setCreatedProductId(saved.id);
     } catch (err: unknown) {
       setIsProcessing(false);
       const msg = err instanceof Error ? err.message : "Failed to create listing. Please try again.";

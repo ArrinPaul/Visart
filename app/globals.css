@@ -21,9 +21,11 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
   }
 
-  h1, h2, h3, .font-serif-editorial {
+  h1, h2, h3, h4, .font-serif-editorial, .font-serif-display {
     font-family: var(--font-playfair), Georgia, Cambria, "Times New Roman", Times, serif;
   }
 }
@@ -34,7 +36,7 @@
   outline-offset: 2px;
 }
 
-/* Tactile Paper Surface */
+/* Tactile Paper Surface Tokens */
 .bg-surface {
   background-color: var(--surface);
 }
@@ -60,11 +62,26 @@
   border-color: var(--line);
 }
 
-/* Custom Scrollbar for horizontal tabs */
+/* Custom Scrollbar for horizontal tabs & general matching paper aesthetic */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F5F0E8;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8D0C4;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A88752;
 }

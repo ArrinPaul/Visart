@@ -1,50 +1,82 @@
--- VISART Database Schema — Member C Platform Layer
+-- ==============================================================================
+-- VISART DATABASE SCHEMA (Supabase PostgreSQL)
+-- Multi-member Unified Platform Layer
+-- ==============================================================================
 
 -- Enable UUID extension
+create extension if not exists "pgcrypto";
 create extension if not exists "uuid-ossp";
 
--- Create products table
-create table if not exists public.products (
-  id text primary key default uuid_generate_v4()::text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  input jsonb not null default '{}'::jsonb,
-  generation jsonb not null default '{}'::jsonb,
-  image_url text not null default ''
+-- 1. ARTISANS TABLE
+create table if not exists public.artisans (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  location text,
+  craft text,
+  preferred_language text default 'en',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
--- RLS Policies
+-- 2. PRODUCTS TABLE
+create table if not exists public.products (
+  id text primary key default gen_random_uuid()::text,
+  artisan_id uuid references public.artisans(id) on delete set null,
+  image_url text,
+  input_data jsonb not null default '{}'::jsonb,
+  generated_data jsonb default '{}'::jsonb,
+  is_published boolean default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Indexes for performance
+create index if not exists idx_products_artisan_id on public.products(artisan_id);
+create index if not exists idx_products_created_at on public.products(created_at desc);
+
+-- 3. ROW LEVEL SECURITY (RLS) POLICIES
+-- Enable RLS
+alter table public.artisans enable row level security;
 alter table public.products enable row level security;
 
--- Allow public read access to products
-create policy "Allow public read access to products"
-  on public.products
-  for select
+-- Public policies
+create policy "Allow public read on artisans"
+  on public.artisans for select
   using (true);
 
--- Allow public insert access to products
-create policy "Allow public insert access to products"
-  on public.products
-  for insert
+create policy "Allow public insert on artisans"
+  on public.artisans for insert
   with check (true);
 
--- Allow public update access to products
-create policy "Allow public update access to products"
-  on public.products
-  for update
+create policy "Allow public update on artisans"
+  on public.artisans for update
   using (true);
 
--- Storage bucket setup
+create policy "Allow public read on products"
+  on public.products for select
+  using (true);
+
+create policy "Allow public insert on products"
+  on public.products for insert
+  with check (true);
+
+create policy "Allow public update on products"
+  on public.products for update
+  using (true);
+
+-- 4. STORAGE BUCKET SETUP
 insert into storage.buckets (id, name, public)
 values ('product-images', 'product-images', true)
 on conflict (id) do nothing;
 
-create policy "Allow public image uploads"
-  on storage.objects
-  for insert
+create policy "Public Access to product-images"
+  on storage.objects for select
+  using (bucket_id = 'product-images');
+
+create policy "Public Upload to product-images"
+  on storage.objects for insert
   with check (bucket_id = 'product-images');
 
-create policy "Allow public image access"
-  on storage.objects
-  for select
+create policy "Public Update to product-images"
+  on storage.objects for update
   using (bucket_id = 'product-images');

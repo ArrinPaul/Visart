@@ -1,76 +1,64 @@
-"use client";
+import React from "react";
+import type { Metadata } from "next";
+import { getProductById } from "@/lib/supabase/products";
+import { ProductView } from "@/components/product/ProductView";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { VisartGeneration } from "@/types/visart";
-import { demoProduct } from "@/lib/demo/demoProduct";
-import ProductHero from "@/components/product/ProductHero";
-import ProductDetails from "@/components/product/ProductDetails";
-import ArtisanStory from "@/components/product/ArtisanStory";
-import Button from "@/components/ui/Button";
-import { ArrowLeft, Sparkles } from "lucide-react";
+interface ProductPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
 
-import { getProduct } from "@/lib/supabase/products";
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProductById(id);
 
-export default function ProductPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [generation, setGeneration] = useState<VisartGeneration>(demoProduct);
+  if (!product) {
+    return {
+      title: "Product Not Found — VISART",
+    };
+  }
 
-  useEffect(() => {
-    async function loadProductData() {
-      const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-      if (id && id !== "demo-1") {
-        const record = await getProduct(id);
-        if (record?.generation) {
-          setGeneration(record.generation);
-          return;
-        }
-      }
+  return {
+    title: `${product.generated_data.product.title} — VISART Craft Catalogue`,
+    description: product.generated_data.product.shortDescription,
+    openGraph: {
+      title: product.generated_data.product.title,
+      description: product.generated_data.product.shortDescription,
+      images: product.image_url ? [{ url: product.image_url }] : [],
+    },
+  };
+}
 
-      if (typeof window !== "undefined") {
-        const stored = sessionStorage.getItem("visart_active_generation");
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            setGeneration(parsed);
-            return;
-          } catch {
-            // Fallback to demo fixture
-          }
-        }
-      }
-    }
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { id } = await params;
+  const product = await getProductById(id);
 
-    loadProductData();
-  }, [params?.id]);
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-12">
-      {/* Top Bar */}
-      <div className="flex items-center justify-between border-b border-[#D8D0C4] pb-4">
-        <button
-          onClick={() => router.push("/workspace")}
-          className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-[#68655F] hover:text-[#1E211F] transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Workspace
-        </button>
-
-        <span className="text-xs font-mono text-[#A88752] bg-[#A88752]/10 px-3 py-1 rounded-full border border-[#A88752]/30 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-[#B85C43]" />
-          VISART Verified Listing Page
-        </span>
+  if (!product) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
+        <div className="max-w-md bg-[#FBF8F2] border border-[#D8D0C4] p-8 rounded-2xl space-y-4 shadow-sm">
+          <h1 className="font-serif-editorial text-2xl font-bold text-[#1E211F]">
+            Product Listing Not Found
+          </h1>
+          <p className="text-sm text-[#68655F]">
+            The craft listing you are looking for may have expired or is unavailable.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/workspace"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#27344A] text-[#FBF8F2] rounded-xl text-xs font-semibold hover:bg-[#1E211F] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Workspace</span>
+            </Link>
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      {/* Hero Section */}
-      <ProductHero product={generation.product} pricing={generation.pricing} />
-
-      {/* Details & Specifications */}
-      <ProductDetails product={generation.product} translations={generation.translations} />
-
-      {/* Artisan Narrative */}
-      <ArtisanStory story={generation.story} />
-    </div>
-  );
+  return <ProductView product={product} />;
 }

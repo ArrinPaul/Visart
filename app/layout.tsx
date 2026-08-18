@@ -3,7 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import Wordmark from "@/components/brand/Wordmark";
 import Link from "next/link";
-import { Sparkles, ShoppingBag, PlusCircle } from "lucide-react";
+import { ShoppingBag, PlusCircle } from "lucide-react";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -19,7 +19,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "VISART — Your craft. Digitally understood.",
-  description: "An artisan platform turning handmade craft into professional, market-ready digital stories.",
+  description: "An artisan platform turning handmade craft into professional, market-ready digital stories, fair price guidance, multilingual reach, and shareable catalogue pages.",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="flex flex-col min-h-screen bg-[#F5F0E8] text-[#1E211F] antialiased">
+      <body className="flex flex-col min-h-screen bg-[#F5F0E8] text-[#1E211F] antialiased selection:bg-[#B85C43]/20 selection:text-[#1E211F]">
         {/* Navigation Header */}
         <header className="sticky top-0 z-40 bg-[#F5F0E8]/90 backdrop-blur-md border-b border-[#D8D0C4]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
