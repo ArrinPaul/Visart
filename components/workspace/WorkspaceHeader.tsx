@@ -22,8 +22,10 @@ export default function WorkspaceHeader({
   const handleSaveClick = () => {
     setSaved(true);
     if (onSave) onSave();
+    const activeId = typeof window !== "undefined" ? sessionStorage.getItem("visart_active_product_id") : null;
+    const targetUrl = activeId ? `/product/${activeId}` : "/product/demo-1";
     setTimeout(() => {
-      router.push("/product/demo-1");
+      router.push(targetUrl);
     }, 600);
   };
 

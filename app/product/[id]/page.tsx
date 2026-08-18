@@ -10,24 +10,40 @@ import ArtisanStory from "@/components/product/ArtisanStory";
 import Button from "@/components/ui/Button";
 import { ArrowLeft, Sparkles } from "lucide-react";
 
+import { getProduct } from "@/lib/supabase/products";
+
 export default function ProductPage() {
   const params = useParams();
   const router = useRouter();
   const [generation, setGeneration] = useState<VisartGeneration>(demoProduct);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("visart_active_generation");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setGeneration(parsed);
-        } catch {
-          // Fallback to demo fixture
+    async function loadProductData() {
+      const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+      if (id && id !== "demo-1") {
+        const record = await getProduct(id);
+        if (record?.generation) {
+          setGeneration(record.generation);
+          return;
+        }
+      }
+
+      if (typeof window !== "undefined") {
+        const stored = sessionStorage.getItem("visart_active_generation");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            setGeneration(parsed);
+            return;
+          } catch {
+            // Fallback to demo fixture
+          }
         }
       }
     }
-  }, [params.id]);
+
+    loadProductData();
+  }, [params?.id]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-12">

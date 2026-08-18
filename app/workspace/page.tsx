@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { VisartGeneration } from "@/types/visart";
 import { WorkspaceTab } from "@/types/frontend";
 import { demoProduct } from "@/lib/demo/demoProduct";
+import { getProduct } from "@/lib/supabase/products";
 import WorkspaceHeader from "@/components/workspace/WorkspaceHeader";
 import WorkspaceTabs from "@/components/workspace/WorkspaceTabs";
 import ListingPanel from "@/components/workspace/ListingPanel";
@@ -12,23 +14,50 @@ import MarketingPanel from "@/components/workspace/MarketingPanel";
 import ReachPanel from "@/components/workspace/ReachPanel";
 import ReadinessPanel from "@/components/workspace/ReadinessPanel";
 
-export default function WorkspacePage() {
+function WorkspaceContent() {
+  const searchParams = useSearchParams();
+  const productId = searchParams.get("id");
   const [generation, setGeneration] = useState<VisartGeneration>(demoProduct);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("LISTING");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("visart_active_generation");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setGeneration(parsed);
-        } catch {
-          // Fallback to demo fixture
+    async function loadWorkspaceData() {
+      // 1. Try URL param ID via Member C getProduct
+      if (productId) {
+        const record = await getProduct(productId);
+        if (record?.generation) {
+          setGeneration(record.generation);
+          return;
+        }
+      }
+
+      if (typeof window !== "undefined") {
+        // 2. Try stored active product ID
+        const activeId = sessionStorage.getItem("visart_active_product_id");
+        if (activeId) {
+          const record = await getProduct(activeId);
+          if (record?.generation) {
+            setGeneration(record.generation);
+            return;
+          }
+        }
+
+        // 3. Try stored active generation
+        const stored = sessionStorage.getItem("visart_active_generation");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            setGeneration(parsed);
+            return;
+          } catch {
+            // Fallback to demo fixture
+          }
         }
       }
     }
-  }, []);
+
+    loadWorkspaceData();
+  }, [productId]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-8">
@@ -57,5 +86,17 @@ export default function WorkspacePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function WorkspacePage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center text-[#68655F]">
+        Loading workbench...
+      </div>
+    }>
+      <WorkspaceContent />
+    </Suspense>
   );
 }

@@ -11,6 +11,9 @@ import { ProductFormData } from "@/types/frontend";
 import { generateListing } from "@/lib/frontend/generationClient";
 import { Sparkles, ArrowLeft, AlertCircle } from "lucide-react";
 
+import { uploadProductImage } from "@/lib/supabase/storage";
+import { saveProduct } from "@/lib/supabase/products";
+
 export default function CreatePage() {
   const router = useRouter();
   const [formData, setFormData] = useState<ProductFormData>({
@@ -22,6 +25,7 @@ export default function CreatePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
 
   const handleFormChange = (updated: Partial<ProductFormData>) => {
     setFormData((prev) => ({ ...prev, ...updated }));
@@ -60,11 +64,21 @@ export default function CreatePage() {
     setErrorMessage(null);
 
     try {
+      // Step 1: AI Generation
       const generation = await generateListing(formData);
-      // Store generated result in sessionStorage for Workspace hydration
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("visart_active_generation", JSON.stringify(generation));
+
+      // Step 2: Member C Storage upload if file is selected
+      let finalImageUrl = formData.imagePreviewUrl || "";
+      if (formData.imageFile) {
+        const uploadedUrl = await uploadProductImage(formData.imageFile);
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        }
       }
+
+      // Step 3: Member C Persistence saveProduct
+      const productId = await saveProduct(formData, generation, finalImageUrl);
+      setCreatedProductId(productId);
     } catch (err: unknown) {
       setIsProcessing(false);
       const msg = err instanceof Error ? err.message : "Failed to create listing. Please try again.";
@@ -73,7 +87,11 @@ export default function CreatePage() {
   };
 
   const handleProcessingComplete = () => {
-    router.push("/workspace");
+    if (createdProductId) {
+      router.push(`/workspace?id=${createdProductId}`);
+    } else {
+      router.push("/workspace");
+    }
   };
 
   if (isProcessing) {
