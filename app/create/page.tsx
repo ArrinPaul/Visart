@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/create/ImageUploader";
 import ProductForm from "@/components/create/ProductForm";
@@ -24,12 +24,16 @@ export default function CreatePage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isBackendComplete, setIsBackendComplete] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [createdProductId, setCreatedProductId] = useState<string | null>(null);
 
+  // Synchronize ref to guarantee fresh read in async callbacks
+  const createdProductIdRef = useRef<string | null>(null);
+  const flowStartRef = useRef<number>(0);
+
   const handleFormChange = (updated: Partial<ProductFormData>) => {
     setFormData((prev) => ({ ...prev, ...updated }));
-    // Clear errors when user types
     setErrors((prev) => {
       const next = { ...prev };
       Object.keys(updated).forEach((key) => delete next[key]);
@@ -60,23 +64,53 @@ export default function CreatePage() {
     e.preventDefault();
     if (!validate()) return;
 
+    flowStartRef.current = performance.now();
+    if (process.env.NODE_ENV === "development") {
+      console.log("[VISART] CREATE FLOW START");
+    }
+
     setIsProcessing(true);
+    setIsBackendComplete(false);
     setErrorMessage(null);
+    createdProductIdRef.current = null;
 
     try {
-      // Step 1: AI Generation via Member B AI intelligence layer
-      const generation = await generateListing(formData);
-
-      // Step 2: Member C Storage upload if file is selected
-      let finalImageUrl = formData.imagePreviewUrl || "";
-      if (formData.imageFile) {
-        const uploadRes = await uploadProductImage(formData.imageFile);
-        if (uploadRes && uploadRes.url) {
-          finalImageUrl = uploadRes.url;
-        }
+      // Step 1 & 2: Concurrently execute AI generation (Member B) and Image Upload (Member C)
+      // Independent pipelines with strict Promise.all error isolation
+      if (process.env.NODE_ENV === "development") {
+        console.log("[VISART] Starting concurrent AI generation and image upload pipeline...");
       }
 
-      // Step 3: Member C Persistence saveProduct
+      const generationPromise = generateListing(formData);
+
+      const imageUploadPromise = formData.imageFile
+        ? uploadProductImage(formData.imageFile)
+        : Promise.resolve({
+            success: true,
+            url: formData.imagePreviewUrl || "",
+          });
+
+      const [generation, uploadRes] = await Promise.all([
+        generationPromise,
+        imageUploadPromise,
+      ]);
+
+      const finalImageUrl = uploadRes?.url || formData.imagePreviewUrl || "";
+
+      console.log(`[VISART DEBUG] generated.title: "${generation.product.title}"`);
+      console.log(`[VISART DEBUG] generated.shortSummary: "${generation.product.shortDescription}"`);
+      console.log(`[VISART DEBUG] generated.description: "${generation.product.description.substring(0, 80)}..."`);
+      console.log(`[VISART DEBUG] generated.material: "${generation.product.material}"`);
+      console.log(`[VISART DEBUG] generated.location: "${generation.product.location}"`);
+      console.log(`[VISART DEBUG] generated.pricing.recommended: ₹${generation.pricing.recommended}`);
+
+      console.log(`[VISART DEBUG] SAVE generated title: "${generation.product.title}"`);
+      console.log(`[VISART DEBUG] SAVE generated description prefix: "${generation.product.description.substring(0, 60)}..."`);
+      console.log(`[VISART DEBUG] SAVE generated material: "${generation.product.material}"`);
+      console.log(`[VISART DEBUG] SAVE generated location: "${generation.product.location}"`);
+      console.log(`[VISART DEBUG] SAVE generated price: ₹${generation.pricing.recommended}`);
+
+      // Step 3: Persist product & artisan data (Member C)
       const saved = await saveProduct({
         inputData: formData,
         generatedData: generation,
@@ -88,26 +122,69 @@ export default function CreatePage() {
         },
       });
 
+      if (!saved?.id) {
+        throw new Error("Persistence failed to return a valid product ID.");
+      }
+
+      if (process.env.NODE_ENV === "development") {
+        const totalElapsed = (performance.now() - flowStartRef.current).toFixed(2);
+        console.log(`[VISART] Pipeline complete in ${totalElapsed}ms. Product ID: ${saved.id}`);
+      }
+
+      createdProductIdRef.current = saved.id;
       setCreatedProductId(saved.id);
+      setIsBackendComplete(true);
     } catch (err: unknown) {
-      setIsProcessing(false);
-      const msg = err instanceof Error ? err.message : "Failed to create listing. Please try again.";
+      const totalElapsed = (performance.now() - flowStartRef.current).toFixed(2);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "We encountered an issue creating your listing. Please verify your connection and try again.";
+      console.error(`[VISART] Create flow failed after ${totalElapsed}ms:`, err);
       setErrorMessage(msg);
+      setIsBackendComplete(false);
     }
   };
 
   const handleProcessingComplete = () => {
-    if (createdProductId) {
-      router.push(`/workspace?id=${createdProductId}`);
-    } else {
-      router.push("/workspace");
+    const targetId = createdProductIdRef.current || createdProductId;
+
+    // Strict invariant: NO PRODUCT ID = NO WORKSPACE REDIRECT
+    if (!targetId) {
+      console.error("[VISART] Navigation halted: no valid product ID available.");
+      setErrorMessage("We couldn't finalize your listing workspace. Please try again.");
+      setIsBackendComplete(false);
+      return;
     }
+
+    if (process.env.NODE_ENV === "development") {
+      const redirectStart = performance.now();
+      console.log(`[VISART] Workspace redirect initiating to: /workspace?id=${targetId}`);
+      const redirectEnd = performance.now();
+      console.log(`[VISART] Workspace redirect dispatch: ${(redirectEnd - redirectStart).toFixed(2)}ms`);
+
+      const totalFlowTime = (performance.now() - flowStartRef.current).toFixed(2);
+      console.log(`[VISART] Total create-to-workspace flow time: ${totalFlowTime}ms`);
+    }
+
+    router.push(`/workspace?id=${targetId}`);
+  };
+
+  const handleRetry = () => {
+    setIsProcessing(false);
+    setIsBackendComplete(false);
+    setErrorMessage(null);
   };
 
   if (isProcessing) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <ProcessingState onComplete={handleProcessingComplete} />
+        <ProcessingState
+          isComplete={isBackendComplete}
+          error={errorMessage}
+          onComplete={handleProcessingComplete}
+          onRetry={handleRetry}
+        />
       </div>
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Upload, Image as ImageIcon, AlertCircle, CheckCircle, X } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle } from "lucide-react";
 import { ImageUploadStatus } from "@/types/frontend";
 import Button from "@/components/ui/Button";
 

@@ -8,11 +8,12 @@ import { Globe, Copy, Check } from "lucide-react";
 
 interface ReachPanelProps {
   translations: VisartGeneration["translations"];
+  product?: VisartGeneration["product"];
 }
 
 type LanguageOption = "en" | "hi" | "kn";
 
-export default function ReachPanel({ translations }: ReachPanelProps) {
+export default function ReachPanel({ translations, product }: ReachPanelProps) {
   const [lang, setLang] = useState<LanguageOption>("en");
   const [copied, setCopied] = useState(false);
 
@@ -21,21 +22,21 @@ export default function ReachPanel({ translations }: ReachPanelProps) {
       case "hi":
         return {
           label: "Hindi (हिंदी)",
-          title: translations.hindi.title,
-          description: translations.hindi.description,
+          title: translations?.hindi?.title || product?.title || "",
+          description: translations?.hindi?.description || product?.description || "",
         };
       case "kn":
         return {
           label: "Kannada (ಕನ್ನಡ)",
-          title: translations.kannada.title,
-          description: translations.kannada.description,
+          title: translations?.kannada?.title || product?.title || "",
+          description: translations?.kannada?.description || product?.description || "",
         };
       case "en":
       default:
         return {
           label: "English",
-          title: "Handcrafted Assamese Bamboo Basket",
-          description: "A durable, handwoven storage basket made from sustainable golden bamboo in Assam, combining functional utility with authentic regional craftsmanship.",
+          title: product?.title || "",
+          description: product?.description || "",
         };
     }
   };

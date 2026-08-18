@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { VisartGeneration } from "@/types/visart";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { MessageSquare, Share2, Check, MapPin, Hammer } from "lucide-react";
+import { MessageSquare, Share2, Check, MapPin } from "lucide-react";
 
 interface ProductHeroProps {
   product: VisartGeneration["product"];

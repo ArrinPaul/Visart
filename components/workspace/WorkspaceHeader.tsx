@@ -5,7 +5,7 @@ import { VisartGeneration } from "@/types/visart";
 import Score from "@/components/ui/Score";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { Check, Bookmark, ExternalLink } from "lucide-react";
+import { Check, Bookmark } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function WorkspaceHeader({ 

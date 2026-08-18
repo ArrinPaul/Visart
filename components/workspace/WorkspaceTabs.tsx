@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { VisartGeneration, ProductInputData } from "@/types/visart";
 import {
   FileText,
@@ -13,6 +13,7 @@ import {
   Save,
   MessageSquare,
   Info,
+  Sparkles,
 } from "lucide-react";
 
 interface WorkspaceTabsProps {
@@ -39,6 +40,18 @@ export function WorkspaceTabs({
   const [title, setTitle] = useState(generation.product.title);
   const [shortDesc, setShortDesc] = useState(generation.product.shortDescription);
   const [fullDesc, setFullDesc] = useState(generation.product.description);
+
+  // Keep local edit states synchronized whenever generation prop updates
+  useEffect(() => {
+    setTitle(generation.product.title);
+    setShortDesc(generation.product.shortDescription);
+    setFullDesc(generation.product.description);
+    setIsEditing(false);
+  }, [
+    generation.product.title,
+    generation.product.shortDescription,
+    generation.product.description,
+  ]);
 
   const handleCopy = (text: string, fieldId: string) => {
     if (typeof window !== "undefined") {
@@ -120,7 +133,12 @@ export function WorkspaceTabs({
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => {
+                      setTitle(generation.product.title);
+                      setShortDesc(generation.product.shortDescription);
+                      setFullDesc(generation.product.description);
+                      setIsEditing(true);
+                    }}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FBF8F2] border border-[#D8D0C4] text-xs font-medium text-[#1E211F] rounded-lg hover:bg-[#F5F0E8] transition-colors cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -136,17 +154,22 @@ export function WorkspaceTabs({
                 <span>Product Title</span>
                 <button
                   type="button"
-                  onClick={() => handleCopy(title, "title")}
+                  onClick={() =>
+                    handleCopy(
+                      isEditing ? title : generation.product.title,
+                      "title"
+                    )
+                  }
                   className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
                 >
                   {copiedField === "title" ? (
                     <>
-                      <Check className="w-3 h-3 text-[#54745A]" />
+                      <Check className="w-3.5 h-3.5 text-[#54745A]" />
                       <span className="text-[#54745A]">Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-3.5 h-3.5" />
                       <span>Copy</span>
                     </>
                   )}
@@ -161,7 +184,7 @@ export function WorkspaceTabs({
                 />
               ) : (
                 <p className="font-serif-editorial text-xl font-medium text-[#1E211F]">
-                  {title}
+                  {generation.product.title}
                 </p>
               )}
             </div>
@@ -172,17 +195,22 @@ export function WorkspaceTabs({
                 <span>Short Summary (For Cards & Feeds)</span>
                 <button
                   type="button"
-                  onClick={() => handleCopy(shortDesc, "short")}
+                  onClick={() =>
+                    handleCopy(
+                      isEditing ? shortDesc : generation.product.shortDescription,
+                      "short"
+                    )
+                  }
                   className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
                 >
                   {copiedField === "short" ? (
                     <>
-                      <Check className="w-3 h-3 text-[#54745A]" />
+                      <Check className="w-3.5 h-3.5 text-[#54745A]" />
                       <span className="text-[#54745A]">Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-3.5 h-3.5" />
                       <span>Copy</span>
                     </>
                   )}
@@ -197,7 +225,7 @@ export function WorkspaceTabs({
                 />
               ) : (
                 <p className="text-sm text-[#68655F] leading-relaxed">
-                  {shortDesc}
+                  {generation.product.shortDescription}
                 </p>
               )}
             </div>
@@ -208,17 +236,22 @@ export function WorkspaceTabs({
                 <span>Full Catalogue Description</span>
                 <button
                   type="button"
-                  onClick={() => handleCopy(fullDesc, "full")}
+                  onClick={() =>
+                    handleCopy(
+                      isEditing ? fullDesc : generation.product.description,
+                      "full"
+                    )
+                  }
                   className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
                 >
                   {copiedField === "full" ? (
                     <>
-                      <Check className="w-3 h-3 text-[#54745A]" />
+                      <Check className="w-3.5 h-3.5 text-[#54745A]" />
                       <span className="text-[#54745A]">Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-3.5 h-3.5" />
                       <span>Copy</span>
                     </>
                   )}
@@ -233,10 +266,52 @@ export function WorkspaceTabs({
                 />
               ) : (
                 <p className="text-sm text-[#1E211F]/90 leading-relaxed">
-                  {fullDesc}
+                  {generation.product.description}
                 </p>
               )}
             </div>
+
+            {/* Artisan Story */}
+            {generation.story?.body && (
+              <div className="p-5 bg-[#FBF8F2] border border-[#D8D0C4] rounded-2xl space-y-3">
+                <div className="flex items-center justify-between border-b border-[#D8D0C4] pb-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#B85C43]">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Artisan Story</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleCopy(
+                        `${generation.story.title}\n\n${generation.story.body}`,
+                        "story"
+                      )
+                    }
+                    className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
+                  >
+                    {copiedField === "story" ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-[#54745A]" />
+                        <span className="text-[#54745A]">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy Story</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                {generation.story.title && (
+                  <h4 className="font-serif-editorial text-lg font-bold text-[#1E211F]">
+                    {generation.story.title}
+                  </h4>
+                )}
+                <p className="text-sm text-[#1E211F]/90 leading-relaxed font-sans">
+                  {generation.story.body}
+                </p>
+              </div>
+            )}
 
             {/* Keywords & Tags */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

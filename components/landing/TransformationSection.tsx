@@ -4,7 +4,7 @@ import React from "react";
 import FadeIn from "@/components/motion/FadeIn";
 import Score from "@/components/ui/Score";
 import Badge from "@/components/ui/Badge";
-import { ArrowRight, Sparkles, Check, Globe } from "lucide-react";
+import { Sparkles, Check, Globe } from "lucide-react";
 
 export default function TransformationSection() {
   return (

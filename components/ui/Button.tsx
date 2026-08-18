@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 
@@ -47,7 +49,7 @@ export default function Button({
       );
     }
     return (
-      <Link href={href} prefetch={false} className={combinedClasses}>
+      <Link href={href} className={combinedClasses}>
         {children}
       </Link>
     );

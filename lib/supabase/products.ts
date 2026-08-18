@@ -65,6 +65,8 @@ export async function saveProduct(
   arg2?: VisartGeneration,
   arg3?: string
 ): Promise<ProductRecord> {
+  const saveStart = performance.now();
+
   let inputData: ProductInputData | ProductFormData;
   let generatedData: VisartGeneration;
   let imageUrl = "";
@@ -85,6 +87,8 @@ export async function saveProduct(
     artisan = params.artisan;
     customId = params.customId;
   }
+
+  console.log(`[VISART DEBUG] saveProduct called with generated title: "${generatedData.product.title}"`);
 
   const productId =
     customId || `visart-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
@@ -166,6 +170,9 @@ export async function saveProduct(
     }
   }
 
+  const saveEnd = performance.now();
+  console.log(`[VISART DEBUG] saved product ID: "${record.id}" (Elapsed: ${(saveEnd - saveStart).toFixed(2)}ms)`);
+
   return record;
 }
 
@@ -177,7 +184,9 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
 
   // 1. Check memory store first
   if (memoryStore.has(id)) {
-    return memoryStore.get(id)!;
+    const found = memoryStore.get(id)!;
+    console.log(`[VISART DEBUG] getProduct returned title from memoryStore: "${found.generated_data.product.title}"`);
+    return found;
   }
 
   // 2. Check localStorage / sessionStorage
@@ -185,6 +194,7 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
   const foundLocal = localList.find((p) => p.id === id);
   if (foundLocal) {
     memoryStore.set(foundLocal.id, foundLocal);
+    console.log(`[VISART DEBUG] getProduct returned title from localStorage: "${foundLocal.generated_data.product.title}"`);
     return foundLocal;
   }
 
@@ -194,6 +204,7 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
       if (cached) {
         const parsed = JSON.parse(cached) as ProductRecord;
         memoryStore.set(parsed.id, parsed);
+        console.log(`[VISART DEBUG] getProduct returned title from sessionStorage: "${parsed.generated_data.product.title}"`);
         return parsed;
       }
     } catch (err) {
@@ -205,6 +216,7 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
   const foundSeed = SEED_PRODUCTS.find((p) => p.id === id);
   if (foundSeed) {
     memoryStore.set(foundSeed.id, foundSeed);
+    console.log(`[VISART DEBUG] getProduct returned title from SEED_PRODUCTS: "${foundSeed.generated_data.product.title}"`);
     return foundSeed;
   }
 
@@ -260,6 +272,7 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
         };
 
         memoryStore.set(record.id, record);
+        console.log(`[VISART DEBUG] getProduct returned title from live Supabase: "${record.generated_data.product.title}"`);
         return record;
       }
     } catch (err) {

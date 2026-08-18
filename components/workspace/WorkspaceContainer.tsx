@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ProductRecord, VisartGeneration } from '@/types/visart';
 import { WorkspaceTabs } from './WorkspaceTabs';
-import { updateProductData } from '@/lib/supabase/products';
+import { updateProductData, getProductById } from '@/lib/supabase/products';
 import { SEED_PRODUCTS } from '@/lib/data/seed';
 import {
   Sparkles,
@@ -29,6 +29,22 @@ export function WorkspaceContainer({
   const [product, setProduct] = useState<ProductRecord>(initialProduct);
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Sync client-side cached product (from localStorage/sessionStorage) if SSR fell back to seed
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const requestedId = urlParams.get('id');
+      if (requestedId && requestedId !== product.id) {
+        getProductById(requestedId).then((found) => {
+          if (found) {
+            console.log(`[VISART DEBUG] WorkspaceContainer hydrated requested product: "${found.generated_data.product.title}"`);
+            setProduct(found);
+          }
+        });
+      }
+    }
+  }, [product.id]);
 
   const gen = product.generated_data;
   const input = product.input_data;

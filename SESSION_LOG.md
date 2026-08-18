@@ -19,7 +19,7 @@
 
 ## Member B Scope — AI Intelligence Layer
 - **API Route (`/api/generate`)**: Validates input using Zod and generates structured artisan listings via Gemini API.
-- **AI Service (`lib/ai/visart.ts`)**: Google GenAI integration with `gemini-2.5-flash`, detailed artisan craft prompts, and fallback mock generator.
+- **AI Service (`lib/ai/visart.ts`)**: Google GenAI integration with `gemini-3.6-flash`, detailed artisan craft prompts, and fallback mock generator.
 - **Validation (`lib/validation/visart.ts`)**: `VisartInputSchema` and `VisartGenerationSchema` Zod validation definitions.
 - **Client Adapter (`lib/frontend/generationClient.ts`)**: Switchable Demo/Live AI generation client.
 
