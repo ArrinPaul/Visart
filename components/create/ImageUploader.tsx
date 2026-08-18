@@ -16,9 +16,12 @@ export default function ImageUploader({ onImageSelected, previewUrl: initialPrev
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [photoTip, setPhotoTip] = useState<string | null>(null);
+
   const handleFile = (file: File) => {
     setStatus("VALIDATING");
     setErrorMessage(null);
+    setPhotoTip(null);
 
     // Validate size (max 8MB)
     const MAX_SIZE = 8 * 1024 * 1024;
@@ -36,8 +39,18 @@ export default function ImageUploader({ onImageSelected, previewUrl: initialPrev
       return;
     }
 
-    // Create preview
+    // Create preview and analyze dimensions for artisan guidance
     const url = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.onload = () => {
+      if (img.width >= 800 && img.height >= 800) {
+        setPhotoTip("High-clarity photo. Excellent for highlighting handwoven details & textures.");
+      } else {
+        setPhotoTip("Photo ready! Tip: Taking a photo near natural window light can boost buyer confidence.");
+      }
+    };
+    img.src = url;
+
     setPreviewUrl(url);
     setStatus("READY");
     onImageSelected(file, url);
@@ -81,24 +94,33 @@ export default function ImageUploader({ onImageSelected, previewUrl: initialPrev
       </label>
 
       {status === "READY" && previewUrl ? (
-        <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-[#D8D0C4] bg-[#FBF8F2] group shadow-sm">
-          <img 
-            src={previewUrl} 
-            alt="Product preview" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-[#1E211F]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
-            <Button size="sm" variant="outline" className="bg-[#FBF8F2] border-none text-[#1E211F]" onClick={() => fileInputRef.current?.click()}>
-              Change Photo
-            </Button>
-            <Button size="sm" variant="danger" onClick={handleClear}>
-              Remove
-            </Button>
+        <div className="flex flex-col gap-2">
+          <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-[#D8D0C4] bg-[#FBF8F2] group shadow-sm">
+            <img 
+              src={previewUrl} 
+              alt="Product preview" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-[#1E211F]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
+              <Button size="sm" variant="outline" className="bg-[#FBF8F2] border-none text-[#1E211F]" onClick={() => fileInputRef.current?.click()}>
+                Change Photo
+              </Button>
+              <Button size="sm" variant="danger" onClick={handleClear}>
+                Remove
+              </Button>
+            </div>
+            <div className="absolute bottom-3 left-3 bg-[#1E211F]/80 text-[#FBF8F2] px-3 py-1 rounded-full text-xs font-mono flex items-center gap-1.5 backdrop-blur-md">
+              <CheckCircle className="w-3.5 h-3.5 text-[#54745A]" />
+              Photo ready
+            </div>
           </div>
-          <div className="absolute bottom-3 left-3 bg-[#1E211F]/80 text-[#FBF8F2] px-3 py-1 rounded-full text-xs font-mono flex items-center gap-1.5 backdrop-blur-md">
-            <CheckCircle className="w-3.5 h-3.5 text-[#54745A]" />
-            Photo ready
-          </div>
+
+          {photoTip && (
+            <div className="p-3 bg-[#F5F0E8] border border-[#D8D0C4] rounded-xl flex items-start gap-2 text-xs text-[#1E211F]">
+              <CheckCircle className="w-3.5 h-3.5 text-[#54745A] shrink-0 mt-0.5" />
+              <span>{photoTip}</span>
+            </div>
+          )}
         </div>
       ) : (
         <div

@@ -5,6 +5,8 @@ import { VisartGeneration } from "@/types/visart";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { Globe, Copy, Check } from "lucide-react";
+import { AudioPlayerControl } from "@/components/ui/AudioPlayerControl";
+import { TTSLanguage } from "@/lib/audio/tts";
 
 interface ReachPanelProps {
   translations: VisartGeneration["translations"];
@@ -22,12 +24,14 @@ export default function ReachPanel({ translations, product }: ReachPanelProps) {
       case "hi":
         return {
           label: "Hindi (हिंदी)",
+          ttsLang: "hi" as TTSLanguage,
           title: translations?.hindi?.title || product?.title || "",
           description: translations?.hindi?.description || product?.description || "",
         };
       case "kn":
         return {
           label: "Kannada (ಕನ್ನಡ)",
+          ttsLang: "kn" as TTSLanguage,
           title: translations?.kannada?.title || product?.title || "",
           description: translations?.kannada?.description || product?.description || "",
         };
@@ -35,6 +39,7 @@ export default function ReachPanel({ translations, product }: ReachPanelProps) {
       default:
         return {
           label: "English",
+          ttsLang: "en" as TTSLanguage,
           title: product?.title || "",
           description: product?.description || "",
         };
@@ -97,19 +102,28 @@ export default function ReachPanel({ translations, product }: ReachPanelProps) {
           <span className="text-xs font-mono tracking-widest uppercase text-[#A88752] font-semibold">
             {active.label} Listing Translation
           </span>
-          <Button size="sm" variant="outline" onClick={handleCopy}>
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-[#54745A]" />
-                <span>Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy Translation</span>
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <AudioPlayerControl
+              key={`reach-tts-${lang}`}
+              text={`${active.title}। ${active.description}`}
+              language={active.ttsLang}
+              label={lang === "hi" ? "हिंदी में सुनें" : lang === "kn" ? "ಕನ್ನಡದಲ್ಲಿ ಕೇಳಿ" : "Listen in English"}
+              variant="compact"
+            />
+            <Button size="sm" variant="outline" onClick={handleCopy}>
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[#54745A]" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Translation</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         <h3 className="font-serif-editorial text-2xl font-bold text-[#1E211F]">
@@ -119,6 +133,37 @@ export default function ReachPanel({ translations, product }: ReachPanelProps) {
         <p className="text-base text-[#1E211F] leading-relaxed bg-[#F5F0E8] p-5 rounded-xl border border-[#D8D0C4]">
           {active.description}
         </p>
+
+        {/* Multi-language Quick Audio Strip */}
+        <div className="border-t border-[#D8D0C4] pt-4 mt-2 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <span className="font-mono text-[#68655F] uppercase text-[11px] tracking-wider">
+            🔊 Quick Native Audio Listen:
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <AudioPlayerControl
+              text={`${product?.title || ""}. ${product?.description || ""}`}
+              language="en"
+              label="English Voice"
+              variant="compact"
+            />
+            {translations?.hindi?.title && (
+              <AudioPlayerControl
+                text={`${translations.hindi.title}। ${translations.hindi.description}`}
+                language="hi"
+                label="हिंदी वाणी (Hindi)"
+                variant="compact"
+              />
+            )}
+            {translations?.kannada?.title && (
+              <AudioPlayerControl
+                text={`${translations.kannada.title}. ${translations.kannada.description}`}
+                language="kn"
+                label="ಕನ್ನಡ ಧ್ವನಿ (Kannada)"
+                variant="compact"
+              />
+            )}
+          </div>
+        </div>
       </Card>
     </div>
   );

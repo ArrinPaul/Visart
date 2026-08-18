@@ -10,7 +10,7 @@ export const demoProduct: VisartGeneration = {
     craftTechnique: "Handwoven Split-Bamboo Weave",
     keywords: ["bamboo basket", "assamese craft", "handwoven storage", "eco-friendly decor", "handmade india"],
     tags: ["Assam", "Bamboo", "Handmade", "Sustainable", "Eco-Friendly"],
-    imageUrl: "https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=1200",
+    imageUrl: "https://imgs.search.brave.com/adXN4we2ehk4deWMmi1dsPathr0F8jLLMFKqW_ubtRc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL0kv/ODFIYWZZZzFscEwu/anBn",
     location: "Assam, India"
   },
   pricing: {

@@ -4,6 +4,7 @@ import React from "react";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { ProductFormData } from "@/types/frontend";
+import { VoiceInputButton } from "@/components/ui/VoiceInputButton";
 
 interface ProductFormProps {
   formData: ProductFormData;
@@ -68,13 +69,27 @@ export default function ProductForm({ formData, onChange, errors }: ProductFormP
         />
       </div>
 
-      <Textarea
-        label="What makes this product special? (Optional)"
-        placeholder="e.g. Handwoven technique learned from my family; organic vegetable dyes used."
-        value={formData.specialStory || ""}
-        onChange={(e) => onChange({ specialStory: e.target.value })}
-        rows={3}
-      />
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[#1E211F]">
+            What makes this product special? (Optional)
+          </label>
+          <VoiceInputButton
+            fieldLabel="product story"
+            onTranscript={(spokenText) => {
+              const current = formData.specialStory ? `${formData.specialStory} ${spokenText}` : spokenText;
+              onChange({ specialStory: current });
+            }}
+          />
+        </div>
+        <Textarea
+          placeholder="e.g. Handwoven technique learned from my family; organic vegetable dyes used."
+          value={formData.specialStory || ""}
+          onChange={(e) => onChange({ specialStory: e.target.value })}
+          rows={3}
+          helperText="Tip: You can type or tap 'Speak' above to dictate your craft background."
+        />
+      </div>
     </div>
   );
 }

@@ -2,6 +2,63 @@ import { VisartGeneration } from "@/types/visart";
 import { ProductFormData } from "@/types/frontend";
 import { getMockGeneration } from "@/lib/ai/visart";
 
+async function processImageForAI(file: File): Promise<{ imageBase64: string; mimeType: string }> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve({ imageBase64: "", mimeType: "" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUri = (e.target?.result as string) || "";
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const MAX_DIM = 1200;
+          let { width, height } = img;
+          if (width > MAX_DIM || height > MAX_DIM) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const optimized = canvas.toDataURL("image/jpeg", 0.85);
+            const base64 = optimized.split(",")[1] || "";
+            resolve({ imageBase64: base64, mimeType: "image/jpeg" });
+            return;
+          }
+        } catch (canvasErr) {
+          console.warn("[VISART] Canvas resize fallback:", canvasErr);
+        }
+
+        const base64 = dataUri.split(",")[1] || "";
+        resolve({ imageBase64: base64, mimeType: file.type || "image/jpeg" });
+      };
+
+      img.onerror = () => {
+        const base64 = dataUri.split(",")[1] || "";
+        resolve({ imageBase64: base64, mimeType: file.type || "image/jpeg" });
+      };
+
+      img.src = dataUri;
+    };
+
+    reader.onerror = () => resolve({ imageBase64: "", mimeType: "" });
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function generateListing(input: ProductFormData): Promise<VisartGeneration> {
   const isDemoMode = process.env.NEXT_PUBLIC_VISART_DEMO_MODE !== "false";
   const start = performance.now();
@@ -36,13 +93,30 @@ export async function generateListing(input: ProductFormData): Promise<VisartGen
     return dynamicMock;
   }
 
-  // Real Mode — POST to Member B's API
+  // Real Mode — Process image base64 if available & POST to Member B's API
+  let imageBase64: string | undefined;
+  let mimeType: string | undefined;
+
+  if (input.imageFile) {
+    try {
+      const processed = await processImageForAI(input.imageFile);
+      if (processed.imageBase64) {
+        imageBase64 = processed.imageBase64;
+        mimeType = processed.mimeType;
+        console.log(`[VISART DEBUG] Image prepared for multimodal AI analysis (${mimeType}, size: ${imageBase64.length} chars)`);
+      }
+    } catch (e) {
+      console.warn("[VISART DEBUG] Failed to prepare image for AI, proceeding text-only:", e);
+    }
+  }
+
   console.log("[VISART DEBUG] calling /api/generate with sanitized input:", {
     productName: input.productName,
     material: input.material,
     location: input.location,
     productionCost: input.productionCost,
     timeRequired: input.timeRequired,
+    hasImage: Boolean(imageBase64),
   });
 
   const numericCost = Number(input.productionCost.replace(/[^0-9.]/g, "")) || 0;
@@ -54,6 +128,8 @@ export async function generateListing(input: ProductFormData): Promise<VisartGen
     location: input.location,
     specialDetails: input.specialStory || undefined,
     imageUrl: input.imagePreviewUrl || undefined,
+    imageBase64: imageBase64 || undefined,
+    mimeType: mimeType || undefined,
   };
 
   const response = await fetch("/api/generate", {
