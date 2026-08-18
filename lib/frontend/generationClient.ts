@@ -29,12 +29,23 @@ export async function generateListing(input: ProductFormData): Promise<VisartGen
   }
 
   // Real Mode — POST to Member B's API
+  const numericCost = Number(input.productionCost.replace(/[^0-9.]/g, "")) || 0;
+  const payload = {
+    productName: input.productName || undefined,
+    material: input.material,
+    productionCost: numericCost,
+    timeRequired: input.timeRequired,
+    location: input.location,
+    specialDetails: input.specialStory || undefined,
+    imageUrl: input.imagePreviewUrl || undefined,
+  };
+
   const response = await fetch("/api/generate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(input),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
