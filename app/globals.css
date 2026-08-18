@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #F5F0E8;
+    --surface: #FBF8F2;
+    --ink: #1E211F;
+    --muted-ink: #68655F;
+    --deep-indigo: #27344A;
+    --terracotta: #B85C43;
+    --brass: #A88752;
+    --line: #D8D0C4;
+    --success: #54745A;
+    --danger: #A34F4F;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--ink);
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-serif-editorial {
+    font-family: var(--font-playfair), Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+}
+
+/* Custom Editorial Primitives & Focus Styles */
+*:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+}
+
+/* Tactile Paper Surface */
+.bg-surface {
+  background-color: var(--surface);
+}
+.bg-background {
+  background-color: var(--background);
+}
+.text-ink {
+  color: var(--ink);
+}
+.text-muted-ink {
+  color: var(--muted-ink);
+}
+.text-terracotta {
+  color: var(--terracotta);
+}
+.text-deep-indigo {
+  color: var(--deep-indigo);
+}
+.text-brass {
+  color: var(--brass);
+}
+.border-line {
+  border-color: var(--line);
+}
+
+/* Custom Scrollbar for horizontal tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
