@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #F5F0E8;
+    --surface: #FBF8F2;
+    --ink: #1E211F;
+    --muted-ink: #68655F;
+    --deep-indigo: #27344A;
+    --terracotta: #B85C43;
+    --brass: #A88752;
+    --line: #D8D0C4;
+    --success: #54745A;
+    --danger: #A34F4F;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--ink);
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4, .font-serif-display {
+    font-family: var(--font-playfair), Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom scrollbar matching paper aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F5F0E8;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8D0C4;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A88752;
+}
