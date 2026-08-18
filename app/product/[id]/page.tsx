@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { VisartGeneration } from "@/types/visart";
 import { demoProduct } from "@/lib/demo/demoProduct";
 import { getProductById } from "@/lib/supabase/products";
@@ -10,41 +10,36 @@ import ProductDetails from "@/components/product/ProductDetails";
 import ArtisanStory from "@/components/product/ArtisanStory";
 import { ArrowLeft, Sparkles } from "lucide-react";
 
-interface ProductPageProps {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
-export default function ProductPage(props: ProductPageProps) {
-  const resolvedParams = use(props.params);
+export default function ProductPage() {
+  const params = useParams();
   const router = useRouter();
   const [generation, setGeneration] = useState<VisartGeneration>(demoProduct);
 
   useEffect(() => {
-    async function loadProduct() {
-      if (resolvedParams?.id) {
-        const record = await getProductById(resolvedParams.id);
+    async function loadProductData() {
+      const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+      if (id && id !== "demo-1") {
+        const record = await getProductById(id);
         if (record?.generated_data) {
           setGeneration({
             ...record.generated_data,
             product: {
               ...record.generated_data.product,
               imageUrl: record.image_url || record.generated_data.product.imageUrl,
-              location: record.input_data.location || record.generated_data.product.location,
+              location: record.input_data?.location || record.generated_data.product.location,
             },
           });
           return;
         }
       }
 
-      // Check sessionStorage for fallback
       if (typeof window !== "undefined") {
         const stored = sessionStorage.getItem("visart_active_generation");
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
             setGeneration(parsed);
+            return;
           } catch {
             // Fallback to demo fixture
           }
@@ -52,8 +47,8 @@ export default function ProductPage(props: ProductPageProps) {
       }
     }
 
-    loadProduct();
-  }, [resolvedParams.id]);
+    loadProductData();
+  }, [params?.id]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-12">

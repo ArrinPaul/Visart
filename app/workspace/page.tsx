@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { VisartGeneration } from "@/types/visart";
 import { WorkspaceTab } from "@/types/frontend";
 import { demoProduct } from "@/lib/demo/demoProduct";
@@ -13,25 +14,18 @@ import MarketingPanel from "@/components/workspace/MarketingPanel";
 import ReachPanel from "@/components/workspace/ReachPanel";
 import ReadinessPanel from "@/components/workspace/ReadinessPanel";
 
-interface WorkspacePageProps {
-  searchParams?: Promise<{
-    id?: string;
-  }>;
-}
-
-export default function WorkspacePage(props: WorkspacePageProps) {
-  const searchParams = props.searchParams ? use(props.searchParams) : undefined;
-  const requestedId = searchParams?.id;
-
+function WorkspaceContent() {
+  const searchParams = useSearchParams();
+  const requestedId = searchParams.get("id");
   const [generation, setGeneration] = useState<VisartGeneration>(demoProduct);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("LISTING");
-  const [productId, setProductId] = useState<string>("demo-bamboo-basket");
+  const [activeId, setActiveId] = useState<string>("demo-bamboo-basket");
 
   useEffect(() => {
-    async function loadData() {
-      // 1. If an ID query param exists, fetch from Supabase / Seed Data
+    async function loadWorkspaceData() {
+      // 1. Try URL param ID
       if (requestedId) {
-        setProductId(requestedId);
+        setActiveId(requestedId);
         const record = await getProductById(requestedId);
         if (record?.generated_data) {
           setGeneration({
@@ -39,23 +33,32 @@ export default function WorkspacePage(props: WorkspacePageProps) {
             product: {
               ...record.generated_data.product,
               imageUrl: record.image_url || record.generated_data.product.imageUrl,
-              location: record.input_data.location || record.generated_data.product.location,
+              location: record.input_data?.location || record.generated_data.product.location,
             },
           });
           return;
         }
       }
 
-      // 2. Check sessionStorage for newly generated draft
       if (typeof window !== "undefined") {
+        // 2. Try stored active product ID
         const storedId = sessionStorage.getItem("visart_active_product_id");
-        if (storedId) setProductId(storedId);
+        if (storedId) {
+          setActiveId(storedId);
+          const record = await getProductById(storedId);
+          if (record?.generated_data) {
+            setGeneration(record.generated_data);
+            return;
+          }
+        }
 
+        // 3. Try stored active generation
         const stored = sessionStorage.getItem("visart_active_generation");
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
             setGeneration(parsed);
+            return;
           } catch {
             // Fallback to demo fixture
           }
@@ -63,7 +66,7 @@ export default function WorkspacePage(props: WorkspacePageProps) {
       }
     }
 
-    loadData();
+    loadWorkspaceData();
   }, [requestedId]);
 
   return (
@@ -73,7 +76,7 @@ export default function WorkspacePage(props: WorkspacePageProps) {
         generation={generation} 
         onSave={() => {
           if (typeof window !== "undefined") {
-            window.location.href = `/product/${productId}`;
+            window.location.href = `/product/${activeId}`;
           }
         }}
       />
@@ -100,5 +103,17 @@ export default function WorkspacePage(props: WorkspacePageProps) {
         )}
       </div>
     </div>
+  );
+}
+
+export default function WorkspacePage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center text-[#68655F]">
+        Loading workbench...
+      </div>
+    }>
+      <WorkspaceContent />
+    </Suspense>
   );
 }

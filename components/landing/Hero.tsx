@@ -36,19 +36,15 @@ export default function Hero() {
 
             <FadeIn delay={0.4} direction="up" className="w-full sm:w-auto">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-8">
-                <Link href="/create">
-                  <Button size="lg" variant="secondary" className="w-full sm:w-auto shadow-md">
-                    <PlusCircle className="w-5 h-5" />
-                    <span>Create my listing</span>
-                  </Button>
-                </Link>
+                <Button href="/create" size="lg" variant="secondary" className="w-full sm:w-auto shadow-md">
+                  <PlusCircle className="w-5 h-5" />
+                  <span>Create my listing</span>
+                </Button>
 
-                <a href="#how-it-works">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    <span>See how it works</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </a>
+                <Button href="#how-it-works" size="lg" variant="outline" className="w-full sm:w-auto">
+                  <span>See how it works</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
               </div>
             </FadeIn>
 

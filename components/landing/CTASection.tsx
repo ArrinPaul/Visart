@@ -24,12 +24,10 @@ export default function CTASection() {
           </p>
 
           <div className="mt-8">
-            <Link href="/create">
-              <Button size="lg" variant="secondary" className="shadow-lg">
-                <PlusCircle className="w-5 h-5" />
-                <span>Create my listing</span>
-              </Button>
-            </Link>
+            <Button href="/create" size="lg" variant="secondary" className="shadow-lg">
+              <PlusCircle className="w-5 h-5" />
+              <span>Create my listing</span>
+            </Button>
           </div>
         </FadeIn>
       </div>

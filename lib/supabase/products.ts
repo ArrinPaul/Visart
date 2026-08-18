@@ -1,5 +1,5 @@
 import type { ProductRecord, ProductInputData, VisartGeneration, ArtisanInputData } from '@/types/visart';
-import { supabase, isSupabaseLive } from './client';
+import { supabase, isSupabaseLive, getSupabaseClient } from './client';
 import { SEED_PRODUCTS } from '@/lib/data/seed';
 
 const LOCAL_STORAGE_KEY = 'visart_saved_products';
@@ -34,22 +34,62 @@ function saveToLocalStorage(product: ProductRecord) {
   try {
     const existing = getLocalStorageProducts().filter((p) => p.id !== product.id);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([product, ...existing]));
+    sessionStorage.setItem(`visart_product_${product.id}`, JSON.stringify(product));
+    sessionStorage.setItem('visart_active_generation', JSON.stringify(product.generated_data));
+    sessionStorage.setItem('visart_active_product_id', product.id);
   } catch (e) {
-    console.warn('Failed to save to localStorage:', e);
+    console.warn('Failed to save to storage:', e);
   }
 }
 
 /**
  * Save newly generated product listing & artisan facts
  */
-export async function saveProduct(params: {
-  inputData: ProductInputData;
-  generatedData: VisartGeneration;
-  imageUrl: string;
-  artisan?: ArtisanInputData;
-  customId?: string;
-}): Promise<ProductRecord> {
-  const { inputData, generatedData, imageUrl, artisan, customId } = params;
+export async function saveProduct(
+  paramsOrInput:
+    | {
+        inputData: ProductInputData;
+        generatedData: VisartGeneration;
+        imageUrl: string;
+        artisan?: ArtisanInputData;
+        customId?: string;
+      }
+    | any,
+  generationArg?: VisartGeneration,
+  imageUrlArg?: string
+): Promise<ProductRecord> {
+  let inputData: ProductInputData;
+  let generatedData: VisartGeneration;
+  let imageUrl: string;
+  let artisan: ArtisanInputData | undefined;
+  let customId: string | undefined;
+
+  if (generationArg && typeof paramsOrInput === 'object') {
+    // Called with (input, generation, imageUrl)
+    inputData = {
+      productName: paramsOrInput.productName || paramsOrInput.material,
+      material: paramsOrInput.material,
+      productionCost: Number(paramsOrInput.productionCost) || 0,
+      timeRequired: paramsOrInput.timeRequired,
+      location: paramsOrInput.location,
+      craftStory: paramsOrInput.specialStory || paramsOrInput.craftStory,
+    };
+    generatedData = generationArg;
+    imageUrl = imageUrlArg || '';
+    artisan = {
+      name: paramsOrInput.artisanName || 'Artisan',
+      location: paramsOrInput.location,
+      craft: paramsOrInput.material,
+    };
+  } else {
+    // Called with params object
+    inputData = paramsOrInput.inputData;
+    generatedData = paramsOrInput.generatedData;
+    imageUrl = paramsOrInput.imageUrl || '';
+    artisan = paramsOrInput.artisan;
+    customId = paramsOrInput.customId;
+  }
+
   const productId = customId || `visart-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
   const now = new Date().toISOString();
 
@@ -73,16 +113,17 @@ export async function saveProduct(params: {
       : null,
   };
 
-  // 1. Always store locally for zero-latency workspace preview & offline fallback
+  // 1. Store locally for instant workspace preview
   saveToLocalStorage(record);
 
-  // 2. If Supabase is live, persist to PostgreSQL
-  if (isSupabaseLive && supabase) {
+  // 2. Persist to live Supabase if configured
+  const client = supabase || getSupabaseClient();
+  if (isSupabaseLive && client) {
     try {
       let artisanId: string | null = null;
 
       if (artisan?.name) {
-        const { data: artisanRow, error: artisanErr } = await supabase
+        const { data: artisanRow, error: artisanErr } = await client
           .from('artisans')
           .insert({
             name: artisan.name,
@@ -99,7 +140,7 @@ export async function saveProduct(params: {
         }
       }
 
-      const { data: productRow, error: productErr } = await supabase
+      const { data: productRow, error: productErr } = await client
         .from('products')
         .insert({
           artisan_id: artisanId,
@@ -125,17 +166,39 @@ export async function saveProduct(params: {
 }
 
 /**
- * Retrieve a product by ID (handles Supabase, seed demo data, and local draft records)
+ * Retrieve a product by ID
  */
 export async function getProductById(id: string): Promise<ProductRecord | null> {
   if (!id) return null;
 
-  // 1. Check memory store first
+  // 1. Check memory store
   if (memoryStore.has(id)) {
     return memoryStore.get(id)!;
   }
 
-  // 2. Check localStorage
+  // 2. Check localStorage & sessionStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const sessionCached = sessionStorage.getItem(`visart_product_${id}`);
+      if (sessionCached) {
+        const parsed = JSON.parse(sessionCached);
+        const rec: ProductRecord = parsed.generated_data
+          ? parsed
+          : {
+              id: parsed.id,
+              image_url: parsed.image_url || '',
+              input_data: parsed.input || parsed.input_data,
+              generated_data: parsed.generation || parsed.generated_data,
+              created_at: parsed.created_at,
+            };
+        memoryStore.set(id, rec);
+        return rec;
+      }
+    } catch (err) {
+      console.warn('SessionStorage read error:', err);
+    }
+  }
+
   const localList = getLocalStorageProducts();
   const foundLocal = localList.find((p) => p.id === id);
   if (foundLocal) {
@@ -150,10 +213,11 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
     return foundSeed;
   }
 
-  // 4. Query live Supabase DB if available
-  if (isSupabaseLive && supabase) {
+  // 4. Query live Supabase DB
+  const client = supabase || getSupabaseClient();
+  if (isSupabaseLive && client) {
     try {
-      const { data: productRow, error } = await supabase
+      const { data: productRow, error } = await client
         .from('products')
         .select(`
           id,
@@ -208,27 +272,26 @@ export async function getProductById(id: string): Promise<ProductRecord | null> 
     }
   }
 
-  // Fallback default: return the first seed product so the user never sees a broken page
+  // Fallback to seed product
   return SEED_PRODUCTS[0];
 }
 
+export const getProduct = getProductById;
+
 /**
- * Retrieve recent products for workspace switcher / catalogue
+ * Retrieve recent products for workspace
  */
 export async function getRecentProducts(): Promise<ProductRecord[]> {
   const localList = getLocalStorageProducts();
   const map = new Map<string, ProductRecord>();
 
-  // Add seed products
   SEED_PRODUCTS.forEach((p) => map.set(p.id, p));
-
-  // Add local products
   localList.forEach((p) => map.set(p.id, p));
 
-  // If live Supabase, fetch latest
-  if (isSupabaseLive && supabase) {
+  const client = supabase || getSupabaseClient();
+  if (isSupabaseLive && client) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('products')
         .select(`
           id,
@@ -275,7 +338,7 @@ export async function getRecentProducts(): Promise<ProductRecord[]> {
         });
       }
     } catch (e) {
-      console.warn('Failed to fetch from live Supabase:', e);
+      console.warn('Failed to fetch recent products from live Supabase:', e);
     }
   }
 
@@ -283,7 +346,7 @@ export async function getRecentProducts(): Promise<ProductRecord[]> {
 }
 
 /**
- * Update product data when edited in the workspace
+ * Update product data
  */
 export async function updateProductData(
   id: string,
@@ -303,9 +366,10 @@ export async function updateProductData(
 
   saveToLocalStorage(updated);
 
-  if (isSupabaseLive && supabase) {
+  const client = supabase || getSupabaseClient();
+  if (isSupabaseLive && client) {
     try {
-      await supabase
+      await client
         .from('products')
         .update({
           generated_data: updated.generated_data,

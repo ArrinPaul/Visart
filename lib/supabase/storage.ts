@@ -1,4 +1,5 @@
-import { supabase, isSupabaseLive } from './client';
+import { supabase, isSupabaseLive, getSupabaseClient } from './client';
+import { BUCKET_NAME } from './config';
 
 export type UploadImageResult = {
   success: boolean;
@@ -32,15 +33,16 @@ export async function uploadProductImage(file: File): Promise<UploadImageResult>
     };
   }
 
-  // If Supabase is live, upload to 'product-images' bucket
-  if (isSupabaseLive && supabase) {
+  // If Supabase is live, upload to bucket
+  const client = supabase || getSupabaseClient();
+  if (isSupabaseLive && client) {
     try {
       const fileExt = file.name.split('.').pop() || 'jpg';
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('product-images')
+      const { data: uploadData, error: uploadError } = await client.storage
+        .from(BUCKET_NAME)
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
@@ -49,8 +51,8 @@ export async function uploadProductImage(file: File): Promise<UploadImageResult>
       if (uploadError) {
         console.warn('Supabase storage upload failed, using local URL fallback:', uploadError.message);
       } else if (uploadData?.path) {
-        const { data: publicUrlData } = supabase.storage
-          .from('product-images')
+        const { data: publicUrlData } = client.storage
+          .from(BUCKET_NAME)
           .getPublicUrl(uploadData.path);
 
         if (publicUrlData?.publicUrl) {

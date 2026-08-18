@@ -24,7 +24,7 @@ export default function CreatePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [savedProductId, setSavedProductId] = useState<string | null>(null);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
 
   const handleFormChange = (updated: Partial<ProductFormData>) => {
     setFormData((prev) => ({ ...prev, ...updated }));
@@ -63,51 +63,24 @@ export default function CreatePage() {
     setErrorMessage(null);
 
     try {
-      // 1. Generate AI listing
+      // Step 1: AI Generation
       const generation = await generateListing(formData);
 
-      // 2. Upload image via Member C storage helper
+      // Step 2: Storage upload if file is selected
       let finalImageUrl = formData.imagePreviewUrl || "";
       if (formData.imageFile) {
         const uploadRes = await uploadProductImage(formData.imageFile);
-        if (uploadRes.success && uploadRes.url) {
+        if (uploadRes && typeof uploadRes === "object" && uploadRes.url) {
           finalImageUrl = uploadRes.url;
+        } else if (typeof uploadRes === "string") {
+          finalImageUrl = uploadRes;
         }
       }
 
-      // 3. Persist product via Member C persistence layer
-      const saved = await saveProduct({
-        inputData: {
-          productName: formData.productName || formData.material,
-          material: formData.material,
-          productionCost: Number(formData.productionCost) || 0,
-          timeRequired: formData.timeRequired,
-          location: formData.location,
-          craftStory: formData.craftStory,
-        },
-        generatedData: {
-          ...generation,
-          product: {
-            ...generation.product,
-            imageUrl: finalImageUrl,
-            location: formData.location,
-          },
-        },
-        imageUrl: finalImageUrl,
-        artisan: {
-          name: formData.artisanName || "Artisan",
-          location: formData.location,
-          craft: formData.material,
-        },
-      });
-
-      setSavedProductId(saved.id);
-
-      // 4. Store active generation in sessionStorage for instant workspace preview
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("visart_active_generation", JSON.stringify(saved.generated_data));
-        sessionStorage.setItem("visart_active_product_id", saved.id);
-      }
+      // Step 3: Persistence saveProduct
+      const savedRecord = await saveProduct(formData, generation, finalImageUrl);
+      const productId = typeof savedRecord === "string" ? savedRecord : savedRecord.id;
+      setCreatedProductId(productId);
     } catch (err: unknown) {
       setIsProcessing(false);
       const msg = err instanceof Error ? err.message : "Failed to create listing. Please try again.";
@@ -116,8 +89,8 @@ export default function CreatePage() {
   };
 
   const handleProcessingComplete = () => {
-    if (savedProductId) {
-      router.push(`/workspace?id=${savedProductId}`);
+    if (createdProductId) {
+      router.push(`/workspace?id=${createdProductId}`);
     } else {
       router.push("/workspace");
     }

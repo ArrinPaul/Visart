@@ -1,12 +1,14 @@
 import type { ProductInputData, VisartGeneration } from './visart';
+import type { ProductFormData } from './frontend';
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export interface FrontendProductRecord {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
+  input: ProductFormData;
+  generation: VisartGeneration;
+  image_url: string;
+}
 
 export type Database = {
   public: {
