@@ -6,6 +6,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { Copy, Check, Sparkles } from "lucide-react";
+import TextToSpeechButton from "@/components/ui/TextToSpeechButton";
 
 interface ListingPanelProps {
   product: VisartGeneration["product"];
@@ -15,10 +16,14 @@ interface ListingPanelProps {
 export default function ListingPanel({ product, story }: ListingPanelProps) {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
-  const copyToClipboard = (text: string, section: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedSection(section);
-    setTimeout(() => setCopiedSection(null), 2000);
+  const copyToClipboard = async (text: string, section: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSection(section);
+      setTimeout(() => setCopiedSection(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy", err);
+    }
   };
 
   return (
@@ -29,23 +34,27 @@ export default function ListingPanel({ product, story }: ListingPanelProps) {
           <span className="text-xs font-mono tracking-widest uppercase text-[#68655F]">
             Product Title & Copy
           </span>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => copyToClipboard(`${product.title}\n\n${product.description}`, "title-desc")}
-          >
-            {copiedSection === "title-desc" ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-[#54745A]" />
-                <span>Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy Copy</span>
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <TextToSpeechButton text={`${product.title}. ${product.description}`} />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => copyToClipboard(`${product.title}\n\n${product.description}`, "title-desc")}
+              className="border-[#D8D0C4] text-[#1E211F] hover:bg-[#F5F0E8]"
+            >
+              {copiedSection === "title-desc" ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[#54745A]" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         <h2 className="font-serif-editorial text-2xl sm:text-3xl font-bold text-[#1E211F]">

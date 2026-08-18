@@ -11,16 +11,39 @@ interface ProductFormProps {
   errors: Record<string, string>;
 }
 
+import VoiceToForm from "./VoiceToForm";
+
 export default function ProductForm({ formData, onChange, errors }: ProductFormProps) {
+  const handleVoiceExtracted = (extractedData: Partial<ProductFormData>) => {
+    // Only update fields that the AI actually found, to not overwrite user input with empties
+    const newUpdates: Partial<ProductFormData> = {};
+    if (extractedData.material) newUpdates.material = extractedData.material;
+    if (extractedData.productionCost) newUpdates.productionCost = extractedData.productionCost;
+    if (extractedData.timeRequired) newUpdates.timeRequired = extractedData.timeRequired;
+    if (extractedData.location) newUpdates.location = extractedData.location;
+    
+    // Append story instead of replacing if user already typed something
+    if (extractedData.specialStory) {
+      newUpdates.specialStory = formData.specialStory 
+        ? formData.specialStory + " " + extractedData.specialStory 
+        : extractedData.specialStory;
+    }
+    
+    onChange(newUpdates);
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full">
-      <div className="border-b border-[#D8D0C4] pb-3">
-        <h3 className="font-serif-editorial text-lg font-semibold text-[#1E211F]">
-          Product Essentials
-        </h3>
-        <p className="text-xs text-[#68655F]">
-          Provide basic facts. VISART will compose the professional story.
-        </p>
+      <div className="border-b border-[#D8D0C4] pb-3 flex items-start justify-between">
+        <div>
+          <h3 className="font-serif-editorial text-lg font-semibold text-[#1E211F]">
+            Product Essentials
+          </h3>
+          <p className="text-xs text-[#68655F] mt-1">
+            Provide basic facts or use voice dictate. VISART will compose the professional story.
+          </p>
+        </div>
+        <VoiceToForm onExtracted={handleVoiceExtracted} />
       </div>
 
       <Input
