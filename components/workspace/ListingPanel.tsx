@@ -6,6 +6,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { Copy, Check, Sparkles } from "lucide-react";
+import { AudioPlayerControl } from "@/components/ui/AudioPlayerControl";
 
 interface ListingPanelProps {
   product: VisartGeneration["product"];
@@ -65,30 +66,38 @@ export default function ListingPanel({ product, story }: ListingPanelProps) {
       </Card>
 
       {/* Craft Story */}
-      <Card className="flex flex-col gap-3 bg-[#27344A] text-[#FBF8F2] border-[#A88752]/40">
+      <Card className="flex flex-col gap-4 bg-[#27344A] text-[#FBF8F2] border-[#A88752]/40">
         <div className="flex items-center justify-between border-b border-[#A88752]/30 pb-3">
-          <span className="text-xs font-mono tracking-widest uppercase text-[#A88752] flex items-center gap-1.5">
+          <span className="text-xs font-mono tracking-widest uppercase text-[#A88752] flex items-center gap-1.5 font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-[#B85C43]" />
             Artisan Story
           </span>
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-[#A88752]/40 text-[#FBF8F2] hover:bg-[#FBF8F2] hover:text-[#1E211F]"
-            onClick={() => copyToClipboard(`${story.title}\n\n${story.body}`, "story")}
-          >
-            {copiedSection === "story" ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-[#54745A]" />
-                <span>Copied</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy Story</span>
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <AudioPlayerControl
+              text={`${story.title}. ${story.body}`}
+              label="Listen"
+              variant="compact"
+              className="bg-[#1E211F] text-[#FBF8F2] border-[#A88752]/40"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-[#A88752]/40 text-[#FBF8F2] hover:bg-[#FBF8F2] hover:text-[#1E211F]"
+              onClick={() => copyToClipboard(`${story.title}\n\n${story.body}`, "story")}
+            >
+              {copiedSection === "story" ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[#54745A]" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Story</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         <h3 className="font-serif-editorial text-xl font-semibold text-[#FBF8F2]">

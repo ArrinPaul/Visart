@@ -17,8 +17,10 @@ import {
   Sparkles,
   Info,
   ExternalLink,
-  Volume2,
 } from 'lucide-react';
+
+import { AudioPlayerControl } from '@/components/ui/AudioPlayerControl';
+import { TTSLanguage } from '@/lib/audio/tts';
 
 interface ProductViewProps {
   product: ProductRecord;
@@ -27,7 +29,7 @@ interface ProductViewProps {
 export function ProductView({ product }: ProductViewProps) {
   const [language, setLanguage] = useState<LanguageCode>('en');
   const [copied, setCopied] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   const gen = product.generated_data;
   const input = product.input_data;
@@ -45,50 +47,69 @@ export function ProductView({ product }: ProductViewProps) {
     activeDescription = gen.translations.kannada.description || gen.product.description;
   }
 
-  // Handle Share to clipboard
-  const handleShare = () => {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href);
+  // Handle Smart Share (Native Web Share API + Clipboard Fallback)
+  const handleShare = async () => {
+    if (typeof window === 'undefined') return;
+
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: `${gen.product.title} — VISART`,
+      text: `Discover this authentic handcrafted ${gen.product.material} piece from ${artisan?.location || input.location || 'India'} on VISART. Price: ₹${gen.pricing.recommended.toLocaleString('en-IN')}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        setShareFeedback('Shared successfully!');
+        setTimeout(() => setShareFeedback(null), 3000);
+        return;
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.warn('Native share failed, falling back to clipboard:', err);
+        }
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      setShareFeedback('Link copied to clipboard!');
+      setTimeout(() => {
+        setCopied(false);
+        setShareFeedback(null);
+      }, 3000);
+    } catch {
+      setShareFeedback('Failed to copy link.');
+      setTimeout(() => setShareFeedback(null), 3000);
     }
   };
 
-  // Handle WhatsApp inquiry
+  // Handle WhatsApp inquiry with structured commercial message
   const handleWhatsAppInquiry = () => {
+    const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
     const text = encodeURIComponent(
-      `Hello! I am interested in purchasing "${gen.product.title}" listed on VISART (Price: ₹${gen.pricing.recommended.toLocaleString('en-IN')}). Could you please share more details?`
+      `Namaste! I would like to purchase "${gen.product.title}" (${gen.product.material}) from ${artisan?.location || input.location || 'your studio'}.\n\n` +
+      `• Listed Price: ₹${gen.pricing.recommended.toLocaleString('en-IN')}\n` +
+      `• Craft Time: ${input.timeRequired || 'Handcrafted'}\n` +
+      `• Product Link: ${pageUrl}\n\n` +
+      `Please let me know availability and delivery options!`
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
-  // Text-to-speech helper (V2 platform feature)
-  const handleReadAloud = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      alert('Speech synthesis is not supported on this browser.');
-      return;
+  const getLocalizedNarration = () => {
+    if (language === 'hi') {
+      return `${activeTitle}। ${activeDescription}। अनुशंसित मूल्य: ${gen.pricing.recommended} रुपये। कारीगरी स्थान: ${artisan?.location || input.location || 'भारत'}। सामग्री: ${gen.product.material}।`;
     }
-
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      return;
+    if (language === 'kn') {
+      return `${activeTitle}. ${activeDescription}. ಶಿಫಾರಸು ಮಾಡಿದ ಬೆಲೆ: ${gen.pricing.recommended} ರೂಪಾಯಿಗಳು. ಸ್ಥಳ: ${artisan?.location || input.location || 'ಭಾರತ'}. ವಸ್ತು: ${gen.product.material}.`;
     }
-
-    const textToRead = `${activeTitle}. Price: ${gen.pricing.recommended} rupees. Made from ${gen.product.material}. ${activeDescription}`;
-    const utterance = new SpeechSynthesisUtterance(textToRead);
-    
-    // Choose voice language
-    if (language === 'hi') utterance.lang = 'hi-IN';
-    else if (language === 'kn') utterance.lang = 'kn-IN';
-    else utterance.lang = 'en-IN';
-
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+    return `${activeTitle}. Handcrafted from ${gen.product.material} in ${artisan?.location || input.location || 'India'}. Recommended price: ${gen.pricing.recommended} rupees. ${activeDescription}. ${gen.story?.body || ''}`;
   };
+
+  const fullNarrationText = getLocalizedNarration();
+  const audioLabel = language === 'hi' ? 'हिंदी में सुनें' : language === 'kn' ? 'ಕನ್ನಡದಲ್ಲಿ ಕೇಳಿ' : 'Listen';
 
   return (
     <div className="min-h-screen bg-[#F5F0E8] text-[#1E211F]">
@@ -115,28 +136,24 @@ export function ProductView({ product }: ProductViewProps) {
               onSelectLanguage={setLanguage}
             />
 
-            <button
-              type="button"
-              onClick={handleReadAloud}
-              title="Read aloud"
-              className={`p-2 rounded-lg border transition-colors ${
-                isSpeaking
-                  ? 'bg-[#B85C43] text-white border-[#B85C43]'
-                  : 'bg-[#FBF8F2] text-[#1E211F] border-[#D8D0C4] hover:bg-[#F5F0E8]'
-              }`}
-            >
-              <Volume2 className="w-4 h-4" />
-            </button>
+            <AudioPlayerControl
+              key={`tts-${language}`}
+              text={fullNarrationText}
+              language={language as TTSLanguage}
+              label={audioLabel}
+              variant="compact"
+            />
 
             <button
               type="button"
               onClick={handleShare}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FBF8F2] border border-[#D8D0C4] rounded-lg text-xs font-medium text-[#1E211F] hover:bg-[#F5F0E8] transition-all shadow-sm"
+              aria-label="Share product listing"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FBF8F2] border border-[#D8D0C4] rounded-lg text-xs font-medium text-[#1E211F] hover:bg-[#F5F0E8] transition-all shadow-xs"
             >
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-[#54745A]" />
-                  <span className="text-[#54745A]">Link Copied!</span>
+                  <span className="text-[#54745A]">Link Copied</span>
                 </>
               ) : (
                 <>
@@ -147,6 +164,16 @@ export function ProductView({ product }: ProductViewProps) {
             </button>
           </div>
         </div>
+
+        {/* Share feedback toast */}
+        {shareFeedback && (
+          <div className="max-w-7xl mx-auto mt-2 px-4">
+            <div className="py-1 px-3 bg-[#1E211F] text-[#FBF8F2] text-xs rounded-lg inline-flex items-center gap-1.5 shadow-md animate-in fade-in">
+              <Check className="w-3.5 h-3.5 text-[#54745A]" />
+              <span>{shareFeedback}</span>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Catalogue Layout */}
@@ -290,12 +317,20 @@ export function ProductView({ product }: ProductViewProps) {
 
             {/* Artisan Story Card */}
             {gen.story?.body && (
-              <div className="p-6 bg-[#FBF8F2] border border-[#D8D0C4] rounded-2xl space-y-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#B85C43]" />
-                  <h3 className="font-serif text-lg font-bold text-[#1E211F]">
-                    {gen.story.title || "The Artisan's Story"}
-                  </h3>
+              <div className="p-6 bg-[#FBF8F2] border border-[#D8D0C4] rounded-2xl space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#B85C43]" />
+                    <h3 className="font-serif text-lg font-bold text-[#1E211F]">
+                      {gen.story.title || "The Artisan's Story"}
+                    </h3>
+                  </div>
+                  <AudioPlayerControl
+                    text={`${gen.story.title || "The Artisan's Story"}. ${gen.story.body}`}
+                    language={language as TTSLanguage}
+                    label="Listen to Story"
+                    variant="compact"
+                  />
                 </div>
                 <p className="text-xs sm:text-sm text-[#68655F] leading-relaxed font-sans">
                   {gen.story.body}

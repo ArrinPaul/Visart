@@ -85,3 +85,43 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #A88752;
 }
+
+/* Accessibility & Inclusive Mode Tokens */
+html[data-font-size="large"] {
+  font-size: 110%;
+}
+
+html[data-font-size="extra-large"] {
+  font-size: 122%;
+}
+
+html[data-contrast="high"] {
+  --background: #FFFFFF;
+  --surface: #FFFFFF;
+  --ink: #000000;
+  --muted-ink: #1A1A1A;
+  --line: #000000;
+  --terracotta: #8B2500;
+  --deep-indigo: #0B1D3A;
+  --brass: #6B4E1B;
+}
+
+html[data-contrast="high"] body {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+html[data-contrast="high"] *:focus-visible {
+  outline: 3px solid #000000 !important;
+  outline-offset: 3px !important;
+}
+
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+

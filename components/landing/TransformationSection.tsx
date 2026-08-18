@@ -5,6 +5,7 @@ import FadeIn from "@/components/motion/FadeIn";
 import Score from "@/components/ui/Score";
 import Badge from "@/components/ui/Badge";
 import { Sparkles, Check, Globe } from "lucide-react";
+import { demoProduct } from "@/lib/demo/demoProduct";
 
 export default function TransformationSection() {
   return (
@@ -38,8 +39,8 @@ export default function TransformationSection() {
 
                 <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden border border-[#D8D0C4] bg-[#F5F0E8]">
                   <img
-                    src="https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=800"
-                    alt="Bamboo Basket"
+                    src={demoProduct.product.imageUrl}
+                    alt={demoProduct.product.title}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -47,7 +48,7 @@ export default function TransformationSection() {
                 <div className="grid grid-cols-2 gap-3 text-xs font-mono bg-[#F5F0E8] p-4 rounded-xl border border-[#D8D0C4]">
                   <div>
                     <span className="text-[#68655F]">Product:</span>
-                    <p className="font-semibold text-[#1E211F]">Bamboo Basket</p>
+                    <p className="font-semibold text-[#1E211F] truncate">{demoProduct.product.title}</p>
                   </div>
                   <div>
                     <span className="text-[#68655F]">Cost:</span>
@@ -59,7 +60,7 @@ export default function TransformationSection() {
                   </div>
                   <div>
                     <span className="text-[#68655F]">Location:</span>
-                    <p className="font-semibold text-[#1E211F]">Assam</p>
+                    <p className="font-semibold text-[#1E211F]">{demoProduct.product.location || "Assam"}</p>
                   </div>
                 </div>
               </div>
@@ -84,26 +85,26 @@ export default function TransformationSection() {
                   <span className="text-xs font-mono tracking-widest uppercase text-[#A88752]">
                     GENERATED DIGITAL OUTPUT
                   </span>
-                  <Score score={82} size="sm" />
+                  <Score score={demoProduct.readiness.overall} size="sm" />
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <h3 className="font-serif-editorial text-xl font-bold text-[#FBF8F2]">
-                    Handcrafted Assamese Bamboo Basket
+                    {demoProduct.product.title}
                   </h3>
                   <p className="text-xs text-[#F5F0E8]/80 line-clamp-2">
-                    A durable, handwoven storage basket made from sustainable golden bamboo in Assam using traditional techniques...
+                    {demoProduct.product.shortDescription}
                   </p>
                 </div>
 
                 <div className="bg-[#1E211F]/80 p-4 rounded-xl border border-[#A88752]/30 grid grid-cols-2 gap-3 text-xs">
                   <div>
                     <span className="text-[#A88752]">Recommended Price:</span>
-                    <p className="text-lg font-bold text-[#FBF8F2]">₹999</p>
+                    <p className="text-lg font-bold text-[#FBF8F2]">₹{demoProduct.pricing.recommended.toLocaleString("en-IN")}</p>
                   </div>
                   <div>
                     <span className="text-[#A88752]">Readiness Score:</span>
-                    <p className="text-lg font-bold text-[#54745A]">82 / 100</p>
+                    <p className="text-lg font-bold text-[#54745A]">{demoProduct.readiness.overall} / 100</p>
                   </div>
                 </div>
 

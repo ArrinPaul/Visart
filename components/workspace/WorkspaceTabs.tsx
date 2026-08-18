@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import type { VisartGeneration, ProductInputData } from "@/types/visart";
+import { AudioPlayerControl } from "@/components/ui/AudioPlayerControl";
 import {
   FileText,
   TrendingUp,
@@ -233,29 +234,37 @@ export function WorkspaceTabs({
             {/* Full Description */}
             <div className="p-5 bg-[#FBF8F2] border border-[#D8D0C4] rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#68655F]">
-                <span>Full Catalogue Description</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleCopy(
-                      isEditing ? fullDesc : generation.product.description,
-                      "full"
-                    )
-                  }
-                  className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
-                >
-                  {copiedField === "full" ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-[#54745A]" />
-                      <span className="text-[#54745A]">Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
+                <span>Full Product Narrative</span>
+                <div className="flex items-center gap-2">
+                  <AudioPlayerControl
+                    text={isEditing ? fullDesc : generation.product.description}
+                    language="en"
+                    label="Listen"
+                    variant="compact"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleCopy(
+                        isEditing ? fullDesc : generation.product.description,
+                        "full"
+                      )
+                    }
+                    className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
+                  >
+                    {copiedField === "full" ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-[#54745A]" />
+                        <span className="text-[#54745A]">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               {isEditing ? (
                 <textarea
@@ -279,28 +288,36 @@ export function WorkspaceTabs({
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Artisan Story</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleCopy(
-                        `${generation.story.title}\n\n${generation.story.body}`,
-                        "story"
-                      )
-                    }
-                    className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
-                  >
-                    {copiedField === "story" ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-[#54745A]" />
-                        <span className="text-[#54745A]">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Story</span>
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <AudioPlayerControl
+                      text={`${generation.story.title || "Story"}. ${generation.story.body}`}
+                      language="en"
+                      label="Listen"
+                      variant="compact"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleCopy(
+                          `${generation.story.title}\n\n${generation.story.body}`,
+                          "story"
+                        )
+                      }
+                      className="flex items-center gap-1 text-[11px] text-[#B85C43] hover:underline cursor-pointer"
+                    >
+                      {copiedField === "story" ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-[#54745A]" />
+                          <span className="text-[#54745A]">Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy Story</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 {generation.story.title && (
                   <h4 className="font-serif-editorial text-lg font-bold text-[#1E211F]">
@@ -541,7 +558,7 @@ export function WorkspaceTabs({
                   Multilingual Listing Content
                 </h3>
                 <p className="text-xs text-[#68655F]">
-                  Accurate, natural translations in regional Indian languages.
+                  Accurate, natural translations & spoken audio in regional Indian languages.
                 </p>
               </div>
               <div className="flex items-center gap-1 p-1 bg-[#FBF8F2] border border-[#D8D0C4] rounded-lg">
@@ -554,9 +571,9 @@ export function WorkspaceTabs({
                     key={l.code}
                     type="button"
                     onClick={() => setActiveLanguage(l.code as "en" | "hi" | "kn")}
-                    className={`px-3 py-1 text-xs font-semibold rounded cursor-pointer ${
+                    className={`px-3 py-1 text-xs font-semibold rounded cursor-pointer transition-all ${
                       activeLanguage === l.code
-                        ? "bg-[#27344A] text-white"
+                        ? "bg-[#27344A] text-white shadow-xs"
                         : "text-[#68655F] hover:text-[#1E211F]"
                     }`}
                   >
@@ -567,7 +584,66 @@ export function WorkspaceTabs({
             </div>
 
             {/* Translated Display Card */}
-            <div className="p-6 bg-[#FBF8F2] border border-[#D8D0C4] rounded-2xl space-y-4">
+            <div className="p-6 bg-[#FBF8F2] border border-[#D8D0C4] rounded-2xl space-y-4 shadow-xs">
+              <div className="flex items-center justify-between border-b border-[#D8D0C4] pb-3">
+                <span className="text-xs font-mono tracking-widest uppercase text-[#A88752] font-semibold">
+                  {activeLanguage === "hi"
+                    ? "Hindi (हिंदी) Translation & Speech"
+                    : activeLanguage === "kn"
+                    ? "Kannada (ಕನ್ನಡ) Translation & Speech"
+                    : "English Listing & Speech"}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <AudioPlayerControl
+                    key={`reach-tts-${activeLanguage}`}
+                    text={
+                      activeLanguage === "hi"
+                        ? `${generation.translations?.hindi?.title || generation.product.title}। ${generation.translations?.hindi?.description || generation.product.description}`
+                        : activeLanguage === "kn"
+                        ? `${generation.translations?.kannada?.title || generation.product.title}. ${generation.translations?.kannada?.description || generation.product.description}`
+                        : `${generation.product.title}. ${generation.product.description}`
+                    }
+                    language={activeLanguage}
+                    label={
+                      activeLanguage === "hi"
+                        ? "हिंदी में सुनें"
+                        : activeLanguage === "kn"
+                        ? "ಕನ್ನಡದಲ್ಲಿ ಕೇಳಿ"
+                        : "Listen in English"
+                    }
+                    variant="compact"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleCopy(
+                        activeLanguage === "hi"
+                          ? `${generation.translations?.hindi?.title || ""}\n\n${generation.translations?.hindi?.description || ""}`
+                          : activeLanguage === "kn"
+                          ? `${generation.translations?.kannada?.title || ""}\n\n${generation.translations?.kannada?.description || ""}`
+                          : `${generation.product.title}\n\n${generation.product.description}`,
+                        "trans"
+                      )
+                    }
+                    className="flex items-center gap-1.5 px-3 py-1 bg-[#F5F0E8] border border-[#D8D0C4] rounded-lg text-xs font-semibold text-[#1E211F] hover:bg-[#D8D0C4]/60 transition-colors"
+                  >
+                    {copiedField === "trans" ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-[#54745A]" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-[#68655F]" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               <div className="space-y-1">
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#68655F]">
                   Translated Title
@@ -585,13 +661,44 @@ export function WorkspaceTabs({
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#68655F]">
                   Translated Full Description
                 </span>
-                <p className="text-sm text-[#1E211F] leading-relaxed pt-1">
+                <p className="text-sm text-[#1E211F] leading-relaxed pt-1 bg-[#F5F0E8] p-4 rounded-xl">
                   {activeLanguage === "hi"
                     ? generation.translations?.hindi?.description || generation.product.description
                     : activeLanguage === "kn"
                     ? generation.translations?.kannada?.description || generation.product.description
                     : generation.product.description}
                 </p>
+              </div>
+
+              {/* Multi-language Quick Audio Strip */}
+              <div className="border-t border-[#D8D0C4] pt-4 mt-2 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <span className="font-mono text-[#68655F] uppercase text-[11px] tracking-wider">
+                  🔊 Quick Native Audio Listen:
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <AudioPlayerControl
+                    text={`${generation.product.title}. ${generation.product.description}`}
+                    language="en"
+                    label="English Voice"
+                    variant="compact"
+                  />
+                  {generation.translations?.hindi?.title && (
+                    <AudioPlayerControl
+                      text={`${generation.translations.hindi.title}। ${generation.translations.hindi.description}`}
+                      language="hi"
+                      label="हिंदी वाणी (Hindi)"
+                      variant="compact"
+                    />
+                  )}
+                  {generation.translations?.kannada?.title && (
+                    <AudioPlayerControl
+                      text={`${generation.translations.kannada.title}. ${generation.translations.kannada.description}`}
+                      language="kn"
+                      label="ಕನ್ನಡ ಧ್ವನಿ (Kannada)"
+                      variant="compact"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import React from "react";
 import Button from "@/components/ui/Button";
 import FadeIn from "@/components/motion/FadeIn";
 import { PlusCircle, ArrowRight, Sparkles } from "lucide-react";
+import { demoProduct } from "@/lib/demo/demoProduct";
 
 export default function Hero() {
   return (
@@ -63,8 +64,8 @@ export default function Hero() {
             <FadeIn delay={0.3} direction="left">
               <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-[#D8D0C4] bg-[#FBF8F2] shadow-xl group">
                 <img
-                  src="https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=1200"
-                  alt="Handwoven Bamboo Craft"
+                  src={demoProduct.product.imageUrl}
+                  alt={demoProduct.product.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 
@@ -75,11 +76,11 @@ export default function Hero() {
                       Authentic Indian Craft
                     </span>
                     <h4 className="font-serif-editorial text-base font-bold text-[#1E211F]">
-                      Handwoven Assamese Basket
+                      {demoProduct.product.title}
                     </h4>
                   </div>
                   <span className="font-serif-editorial text-lg font-bold text-[#B85C43]">
-                    ₹999
+                    ₹{demoProduct.pricing.recommended.toLocaleString("en-IN")}
                   </span>
                 </div>
               </div>

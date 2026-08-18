@@ -284,11 +284,16 @@ Rules & Guidelines:
           errMsg.includes("UNAVAILABLE") ||
           errMsg.includes("429") ||
           errMsg.includes("high demand") ||
-          errMsg.includes("RESOURCE_EXHAUSTED");
+          errMsg.includes("RESOURCE_EXHAUSTED") ||
+          errMsg.includes("fetch failed") ||
+          errMsg.includes("ECONNRESET") ||
+          errMsg.includes("ETIMEDOUT") ||
+          errMsg.includes("timeout") ||
+          errMsg.includes("socket");
 
         if (attempt < 3 && isTransient) {
           const delayMs = attempt * 1500;
-          console.warn(`[VISART] Gemini transient error on attempt ${attempt}, retrying in ${delayMs}ms...`);
+          console.warn(`[VISART] Gemini transient error on attempt ${attempt} (${errMsg}), retrying in ${delayMs}ms...`);
           await new Promise((r) => setTimeout(r, delayMs));
         } else {
           throw err;
