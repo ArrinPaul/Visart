@@ -17,17 +17,59 @@
   body {
     background-color: var(--background);
     color: var(--ink);
-    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     margin: 0;
     padding: 0;
   }
 
-  h1, h2, h3, h4, .font-serif-display {
-    font-family: var(--font-playfair), Georgia, serif;
+  h1, h2, h3, h4, .font-serif-display, .font-serif-editorial {
+    font-family: var(--font-playfair), Georgia, Cambria, "Times New Roman", Times, serif;
     letter-spacing: -0.02em;
   }
+}
+
+/* Custom Editorial Primitives & Focus Styles */
+*:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+}
+
+/* Tactile Paper Surface & Token Utilities */
+.bg-surface {
+  background-color: var(--surface);
+}
+.bg-background {
+  background-color: var(--background);
+}
+.text-ink {
+  color: var(--ink);
+}
+.text-muted-ink {
+  color: var(--muted-ink);
+}
+.text-terracotta {
+  color: var(--terracotta);
+}
+.text-deep-indigo {
+  color: var(--deep-indigo);
+}
+.text-brass {
+  color: var(--brass);
+}
+.border-line {
+  border-color: var(--line);
+}
+
+/* Custom Scrollbar for horizontal tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Custom scrollbar matching paper aesthetic */

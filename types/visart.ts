@@ -31,6 +31,8 @@ export type VisartGeneration = {
     craftTechnique: string;
     keywords: string[];
     tags: string[];
+    imageUrl?: string;
+    location?: string;
   };
 
   pricing: {
