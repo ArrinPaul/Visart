@@ -30,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className="flex flex-col min-h-screen bg-[#F5F0E8] text-[#1E211F] antialiased selection:bg-[#B85C43]/20 selection:text-[#1E211F]">
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`} suppressHydrationWarning>
+      <body className="flex flex-col min-h-screen bg-[#F5F0E8] text-[#1E211F] antialiased selection:bg-[#B85C43]/20 selection:text-[#1E211F]" suppressHydrationWarning>
         <AccessibilityProvider>
           {/* Navigation Header */}
           <header className="sticky top-0 z-40 bg-[#F5F0E8]/90 backdrop-blur-md border-b border-[#D8D0C4]">
