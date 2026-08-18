@@ -5,8 +5,9 @@ import { VisartGeneration } from "@/types/visart";
 import Score from "@/components/ui/Score";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { Check, Bookmark, ExternalLink } from "lucide-react";
+import { Check, Bookmark } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function WorkspaceHeader({ 
   generation,
@@ -33,11 +34,13 @@ export default function WorkspaceHeader({
     <div className="bg-[#FBF8F2] border border-[#D8D0C4] rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
         {product.imageUrl && (
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border border-[#D8D0C4] shrink-0 bg-[#F5F0E8]">
-            <img 
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border border-[#D8D0C4] shrink-0 bg-[#F5F0E8]">
+            <Image 
               src={product.imageUrl} 
               alt={product.title} 
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              unoptimized
             />
           </div>
         )}

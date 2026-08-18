@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import FadeIn from "@/components/motion/FadeIn";
 import { PlusCircle, ArrowRight, Sparkles } from "lucide-react";
@@ -30,7 +30,7 @@ export default function Hero() {
 
             <FadeIn delay={0.3} direction="up">
               <p className="text-lg sm:text-xl text-[#68655F] mt-6 max-w-xl leading-relaxed">
-                Show VISART what you make. We'll help turn it into a market-ready digital story, price guidance, and multilingual customer reach.
+                Show VISART what you make. We&apos;ll help turn it into a market-ready digital story, price guidance, and multilingual customer reach.
               </p>
             </FadeIn>
 
@@ -63,10 +63,12 @@ export default function Hero() {
           <div className="lg:col-span-5">
             <FadeIn delay={0.3} direction="left">
               <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border border-[#D8D0C4] bg-[#FBF8F2] shadow-xl group">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=1200"
                   alt="Handwoven Bamboo Craft"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  unoptimized
                 />
                 
                 {/* Floating Craft Badge */}

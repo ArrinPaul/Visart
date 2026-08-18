@@ -32,7 +32,7 @@ export default function ProblemSection() {
             </span>
             <h2 className="font-serif-editorial text-3xl sm:text-4xl font-bold text-[#1E211F] mt-2">
               You know your craft. <br />
-              You shouldn't have to learn the internet.
+              You shouldn&apos;t have to learn the internet.
             </h2>
             <p className="text-base text-[#68655F] mt-4 leading-relaxed">
               Craftspeople spend days creating beautiful heritage products but struggle to turn them into digital listings. VISART bridges that gap in three steps.

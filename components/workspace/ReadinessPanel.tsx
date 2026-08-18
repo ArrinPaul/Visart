@@ -4,7 +4,6 @@ import React from "react";
 import { VisartGeneration } from "@/types/visart";
 import Card from "@/components/ui/Card";
 import Score from "@/components/ui/Score";
-import { ArrowUpRight, CheckCircle, ShieldAlert } from "lucide-react";
 
 interface ReadinessPanelProps {
   readiness: VisartGeneration["readiness"];

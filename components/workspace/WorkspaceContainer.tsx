@@ -4,7 +4,13 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ProductRecord, VisartGeneration } from '@/types/visart';
-import { WorkspaceTabs } from './WorkspaceTabs';
+import WorkspaceTabs from './WorkspaceTabs';
+import ListingPanel from './ListingPanel';
+import PricingPanel from './PricingPanel';
+import MarketingPanel from './MarketingPanel';
+import ReachPanel from './ReachPanel';
+import ReadinessPanel from './ReadinessPanel';
+import { WorkspaceTab } from '@/types/frontend';
 import { updateProductData } from '@/lib/supabase/products';
 import { SEED_PRODUCTS } from '@/lib/data/seed';
 import {
@@ -27,6 +33,7 @@ export function WorkspaceContainer({
   recentProducts = SEED_PRODUCTS,
 }: WorkspaceContainerProps) {
   const [product, setProduct] = useState<ProductRecord>(initialProduct);
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>("LISTING");
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -35,6 +42,7 @@ export function WorkspaceContainer({
   const artisan = product.artisan;
 
   // Handle generation updates from tabs
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleUpdateGeneration = async (updatedGen: VisartGeneration) => {
     setIsSaving(true);
     setSavedSuccess(false);
@@ -205,10 +213,16 @@ export function WorkspaceContainer({
           {/* Main Tabs Component */}
           <div className="lg:col-span-8 p-6 sm:p-8 bg-[#FBF8F2] border border-[#D8D0C4] rounded-3xl shadow-sm">
             <WorkspaceTabs
-              generation={gen}
-              inputData={input}
-              onUpdateGeneration={handleUpdateGeneration}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
             />
+            <div className="mt-6">
+              {activeTab === "LISTING" && <ListingPanel product={gen.product} story={gen.story} />}
+              {activeTab === "PRICING" && <PricingPanel pricing={gen.pricing} />}
+              {activeTab === "MARKETING" && <MarketingPanel marketing={gen.marketing} />}
+              {activeTab === "REACH" && <ReachPanel translations={gen.translations} />}
+              {activeTab === "READINESS" && <ReadinessPanel readiness={gen.readiness} />}
+            </div>
           </div>
 
           {/* Actionable Next Moves & Story Summary */}

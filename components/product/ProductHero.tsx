@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { VisartGeneration } from "@/types/visart";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { MessageSquare, Share2, Check, MapPin, Hammer } from "lucide-react";
+import { MessageSquare, Share2, Check, MapPin } from "lucide-react";
+import Image from "next/image";
 
 interface ProductHeroProps {
   product: VisartGeneration["product"];
@@ -28,10 +29,12 @@ export default function ProductHero({ product, pricing }: ProductHeroProps) {
       <div className="lg:col-span-7">
         <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden border border-[#D8D0C4] bg-[#FBF8F2] shadow-sm">
           {product.imageUrl ? (
-            <img
+            <Image
               src={product.imageUrl}
               alt={product.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-[#F5F0E8] text-[#68655F]">

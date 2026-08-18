@@ -118,7 +118,7 @@ export default function MarketingPanel({ marketing }: MarketingPanelProps) {
           </Button>
         </div>
         <p className="text-base text-[#1E211F] font-medium italic bg-[#F5F0E8] p-4 rounded-xl border border-[#D8D0C4]">
-          "{marketing.shortAd}"
+          &quot;{marketing.shortAd}&quot;
         </p>
       </Card>
     </div>

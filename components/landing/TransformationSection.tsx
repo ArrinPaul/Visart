@@ -4,7 +4,8 @@ import React from "react";
 import FadeIn from "@/components/motion/FadeIn";
 import Score from "@/components/ui/Score";
 import Badge from "@/components/ui/Badge";
-import { ArrowRight, Sparkles, Check, Globe } from "lucide-react";
+import { Sparkles, Check, Globe } from "lucide-react";
+import Image from "next/image";
 
 export default function TransformationSection() {
   return (
@@ -36,11 +37,13 @@ export default function TransformationSection() {
                   <Badge variant="terracotta">1 Photo + 4 Facts</Badge>
                 </div>
 
-                <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden border border-[#D8D0C4] bg-[#F5F0E8]">
-                  <img
+                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-[#D8D0C4] bg-[#F5F0E8]">
+                  <Image
                     src="https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=800"
                     alt="Bamboo Basket"
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    unoptimized
                   />
                 </div>
 

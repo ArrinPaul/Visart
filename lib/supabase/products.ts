@@ -54,7 +54,7 @@ export async function saveProduct(
         artisan?: ArtisanInputData;
         customId?: string;
       }
-    | any,
+    | unknown,
   generationArg?: VisartGeneration,
   imageUrlArg?: string
 ): Promise<ProductRecord> {
@@ -64,30 +64,39 @@ export async function saveProduct(
   let artisan: ArtisanInputData | undefined;
   let customId: string | undefined;
 
-  if (generationArg && typeof paramsOrInput === 'object') {
+  if (generationArg && paramsOrInput && typeof paramsOrInput === 'object') {
     // Called with (input, generation, imageUrl)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p = paramsOrInput as Record<string, any>;
     inputData = {
-      productName: paramsOrInput.productName || paramsOrInput.material,
-      material: paramsOrInput.material,
-      productionCost: Number(paramsOrInput.productionCost) || 0,
-      timeRequired: paramsOrInput.timeRequired,
-      location: paramsOrInput.location,
-      craftStory: paramsOrInput.specialStory || paramsOrInput.craftStory,
+      productName: p.productName || p.material,
+      material: p.material,
+      productionCost: Number(p.productionCost) || 0,
+      timeRequired: p.timeRequired,
+      location: p.location,
+      craftStory: p.specialStory || p.craftStory,
     };
     generatedData = generationArg;
     imageUrl = imageUrlArg || '';
     artisan = {
-      name: paramsOrInput.artisanName || 'Artisan',
-      location: paramsOrInput.location,
-      craft: paramsOrInput.material,
+      name: p.artisanName || 'Artisan',
+      location: p.location,
+      craft: p.material,
     };
   } else {
     // Called with params object
-    inputData = paramsOrInput.inputData;
-    generatedData = paramsOrInput.generatedData;
-    imageUrl = paramsOrInput.imageUrl || '';
-    artisan = paramsOrInput.artisan;
-    customId = paramsOrInput.customId;
+    const p2 = paramsOrInput as {
+      inputData: ProductInputData;
+      generatedData: VisartGeneration;
+      imageUrl: string;
+      artisan?: ArtisanInputData;
+      customId?: string;
+    };
+    inputData = p2.inputData;
+    generatedData = p2.generatedData;
+    imageUrl = p2.imageUrl || '';
+    artisan = p2.artisan;
+    customId = p2.customId;
   }
 
   const productId = customId || `visart-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Upload, Image as ImageIcon, AlertCircle, CheckCircle, X } from "lucide-react";
+import { Upload, AlertCircle, CheckCircle } from "lucide-react";
+import Image from "next/image";
 import { ImageUploadStatus } from "@/types/frontend";
 import Button from "@/components/ui/Button";
 
@@ -82,10 +83,12 @@ export default function ImageUploader({ onImageSelected, previewUrl: initialPrev
 
       {status === "READY" && previewUrl ? (
         <div className="relative w-full h-80 rounded-2xl overflow-hidden border border-[#D8D0C4] bg-[#FBF8F2] group shadow-sm">
-          <img 
+          <Image 
             src={previewUrl} 
             alt="Product preview" 
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized
           />
           <div className="absolute inset-0 bg-[#1E211F]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
             <Button size="sm" variant="outline" className="bg-[#FBF8F2] border-none text-[#1E211F]" onClick={() => fileInputRef.current?.click()}>
