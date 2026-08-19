@@ -132,6 +132,40 @@ function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
+function getCandidateModels(): string[] {
+  return Array.from(
+    new Set(
+      [
+        process.env.GEMINI_MODEL,
+        "gemini-3.5-flash",
+        "gemini-3.5-flash-lite",
+        "gemini-3.6-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-3.7-flash",
+      ].filter(Boolean) as string[]
+    )
+  );
+}
+
+function isTransientError(errMsg: string): boolean {
+  const lower = errMsg.toLowerCase();
+  return (
+    lower.includes("503") ||
+    lower.includes("unavailable") ||
+    lower.includes("429") ||
+    lower.includes("high demand") ||
+    lower.includes("resource_exhausted") ||
+    lower.includes("fetch failed") ||
+    lower.includes("econnreset") ||
+    lower.includes("etimedout") ||
+    lower.includes("timeout") ||
+    lower.includes("socket") ||
+    lower.includes("overloaded") ||
+    lower.includes("not found") ||
+    lower.includes("404")
+  );
+}
+
 export function getMockGeneration(input: VisartInput): VisartGeneration {
   const productNameText = input.productName ? input.productName.trim() : `Handcrafted ${input.location} ${input.material} Craft`;
   const title = input.productName || `Handcrafted ${input.location} ${input.material} Craft`;
@@ -255,60 +289,57 @@ Rules & Guidelines:
 
     let response;
     let lastError: unknown;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const t0 = performance.now();
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[VISART] Gemini request start (attempt ${attempt}/3): model=gemini-3.6-flash`);
-        }
+    const candidateModels = getCandidateModels();
 
-        response = await ai.models.generateContent({
-          model: "gemini-3.6-flash",
-          contents,
-          config: {
-            responseMimeType: "application/json",
-            responseSchema: visartResponseSchema,
-          },
-        });
+    for (const model of candidateModels) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const t0 = performance.now();
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[VISART] Gemini request start (attempt ${attempt}/2): model=${model}`);
+          }
 
-        const t1 = performance.now();
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[VISART] Gemini request completion: ${(t1 - t0).toFixed(2)}ms`);
-        }
-        break;
-      } catch (err: unknown) {
-        lastError = err;
-        const errMsg = err instanceof Error ? err.message : String(err);
-        const isTransient =
-          errMsg.includes("503") ||
-          errMsg.includes("UNAVAILABLE") ||
-          errMsg.includes("429") ||
-          errMsg.includes("high demand") ||
-          errMsg.includes("RESOURCE_EXHAUSTED") ||
-          errMsg.includes("fetch failed") ||
-          errMsg.includes("ECONNRESET") ||
-          errMsg.includes("ETIMEDOUT") ||
-          errMsg.includes("timeout") ||
-          errMsg.includes("socket");
+          response = await ai.models.generateContent({
+            model,
+            contents,
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: visartResponseSchema,
+            },
+          });
 
-        if (attempt < 3 && isTransient) {
-          const delayMs = attempt * 1500;
-          console.warn(`[VISART] Gemini transient error on attempt ${attempt} (${errMsg}), retrying in ${delayMs}ms...`);
-          await new Promise((r) => setTimeout(r, delayMs));
-        } else {
-          throw err;
+          const t1 = performance.now();
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[VISART] Gemini request completion (${model}): ${(t1 - t0).toFixed(2)}ms`);
+          }
+          if (response?.text) break;
+        } catch (err: unknown) {
+          lastError = err;
+          const errMsg = err instanceof Error ? err.message : String(err);
+          if (isTransientError(errMsg)) {
+            const delayMs = attempt * 1200;
+            console.warn(
+              `[VISART] Gemini transient error on attempt ${attempt} with model ${model} (${errMsg}), retrying in ${delayMs}ms...`
+            );
+            await new Promise((r) => setTimeout(r, delayMs));
+          } else {
+            console.warn(`[VISART] Model ${model} failed (${errMsg}), switching to fallback model...`);
+            break;
+          }
         }
       }
+      if (response?.text) break;
     }
 
-    if (!response) {
+    if (!response?.text) {
+      if (isDemoMode) {
+        console.warn("[VISART] All Gemini models exhausted, returning dynamic mock generation for demo mode.");
+        return getMockGeneration(input);
+      }
       throw lastError instanceof Error ? lastError : new Error("Empty response received from Gemini API");
     }
 
     const text = response.text;
-    if (!text) {
-      throw new Error("Empty response received from Gemini API");
-    }
 
     if (process.env.NODE_ENV === "development") {
       console.log("[VISART] Gemini raw response text type:", typeof text);

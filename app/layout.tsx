@@ -54,6 +54,12 @@ export default function RootLayout({
                   <ShoppingBag className="w-4 h-4 text-[#A88752]" />
                   <span>Workspace</span>
                 </Link>
+                <Link 
+                  href="/admin" 
+                  className="text-sm font-medium text-[#68655F] hover:text-[#B85C43] transition-colors hidden sm:inline-flex items-center gap-1.5"
+                >
+                  <span>Admin</span>
+                </Link>
                 <Link
                   href="/create"
                   className="px-5 py-2.5 bg-[#1E211F] hover:bg-[#27344A] text-[#FBF8F2] text-sm font-medium rounded-full transition-all duration-200 shadow-sm flex items-center gap-2"

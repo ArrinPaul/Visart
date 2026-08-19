@@ -80,3 +80,35 @@ create policy "Public Upload to product-images"
 create policy "Public Update to product-images"
   on storage.objects for update
   using (bucket_id = 'product-images');
+
+-- 5. PRODUCT FEEDBACK & AUTHENTICITY REVIEWS TABLE
+create table if not exists public.product_feedback (
+  id text primary key,
+  product_id text not null references public.products(id) on delete cascade,
+  user_name text not null,
+  user_location text,
+  is_verified_buyer boolean default true,
+  rating integer not null check (rating >= 1 and rating <= 5),
+  authenticity_rating text not null check (authenticity_rating in ('GENUINE_HANDCRAFTED', 'LIKELY_GENUINE', 'SUSPICIOUS_QUALITY', 'CONFIRMED_FAKE_REPLICA')),
+  comment text not null,
+  craft_checks jsonb default '{}'::jsonb,
+  suspected_counterfeit_reason text,
+  flagged_as_fake boolean default false,
+  helpful_count integer default 0,
+  gemini_analysis jsonb default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_feedback_product_id on public.product_feedback(product_id);
+create index if not exists idx_feedback_created_at on public.product_feedback(created_at desc);
+
+alter table public.product_feedback enable row level security;
+
+create policy "Allow public read on product_feedback"
+  on public.product_feedback for select
+  using (true);
+
+create policy "Allow public insert on product_feedback"
+  on public.product_feedback for insert
+  with check (true);
+

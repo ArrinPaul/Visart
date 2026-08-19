@@ -5,6 +5,9 @@ import { ProductView } from "@/components/product/ProductView";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+import { getProductFeedback } from "@/lib/supabase/feedback";
+import { generateAuthenticityAudit } from "@/lib/ai/authenticity";
+
 interface ProductPageProps {
   params: Promise<{
     id: string;
@@ -60,5 +63,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
     );
   }
 
-  return <ProductView product={product} />;
+  const feedbacks = await getProductFeedback(id);
+  const audit = await generateAuthenticityAudit(product, feedbacks);
+
+  return <ProductView product={product} initialFeedbacks={feedbacks} initialAudit={audit} />;
 }

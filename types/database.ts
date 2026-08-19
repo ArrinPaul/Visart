@@ -85,6 +85,65 @@ export type Database = {
           }
         ];
       };
+      product_feedback: {
+        Row: {
+          id: string;
+          product_id: string;
+          user_name: string;
+          user_location: string | null;
+          is_verified_buyer: boolean | null;
+          rating: number;
+          authenticity_rating: string;
+          comment: string;
+          craft_checks: Json | null;
+          suspected_counterfeit_reason: string | null;
+          flagged_as_fake: boolean | null;
+          helpful_count: number | null;
+          gemini_analysis: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          product_id: string;
+          user_name: string;
+          user_location?: string | null;
+          is_verified_buyer?: boolean | null;
+          rating: number;
+          authenticity_rating: string;
+          comment: string;
+          craft_checks?: Json | null;
+          suspected_counterfeit_reason?: string | null;
+          flagged_as_fake?: boolean | null;
+          helpful_count?: number | null;
+          gemini_analysis?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          user_name?: string;
+          user_location?: string | null;
+          is_verified_buyer?: boolean | null;
+          rating?: number;
+          authenticity_rating?: string;
+          comment?: string;
+          craft_checks?: Json | null;
+          suspected_counterfeit_reason?: string | null;
+          flagged_as_fake?: boolean | null;
+          helpful_count?: number | null;
+          gemini_analysis?: Json | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'product_feedback_product_id_fkey';
+            columns: ['product_id'];
+            isOneToOne: false;
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -99,3 +158,6 @@ export type ArtisanUpdate = Database['public']['Tables']['artisans']['Update'];
 export type ProductRow = Database['public']['Tables']['products']['Row'];
 export type ProductInsert = Database['public']['Tables']['products']['Insert'];
 export type ProductUpdate = Database['public']['Tables']['products']['Update'];
+export type ProductFeedbackRow = Database['public']['Tables']['product_feedback']['Row'];
+export type ProductFeedbackInsert = Database['public']['Tables']['product_feedback']['Insert'];
+export type ProductFeedbackUpdate = Database['public']['Tables']['product_feedback']['Update'];

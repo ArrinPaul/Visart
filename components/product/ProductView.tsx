@@ -17,19 +17,30 @@ import {
   Sparkles,
   Info,
   ExternalLink,
+  Star,
+  MessageSquare,
 } from 'lucide-react';
 
 import { AudioPlayerControl } from '@/components/ui/AudioPlayerControl';
 import { TTSLanguage } from '@/lib/audio/tts';
+import type { CustomerFeedback, AuthenticityAudit } from '@/types/feedback';
+import { AuthenticityInspector } from './AuthenticityInspector';
+import { ProductFeedbackSection } from './ProductFeedbackSection';
+import { getMockAuthenticityAudit } from '@/lib/ai/authenticity';
 
 interface ProductViewProps {
   product: ProductRecord;
+  initialFeedbacks?: CustomerFeedback[];
+  initialAudit?: AuthenticityAudit;
 }
 
-export function ProductView({ product }: ProductViewProps) {
+export function ProductView({ product, initialFeedbacks = [], initialAudit }: ProductViewProps) {
   const [language, setLanguage] = useState<LanguageCode>('en');
   const [copied, setCopied] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  const audit = initialAudit || getMockAuthenticityAudit(product, initialFeedbacks);
 
   const gen = product.generated_data;
   const input = product.input_data;
@@ -234,6 +245,19 @@ export function ProductView({ product }: ProductViewProps) {
                 <MessageCircle className="w-4 h-4" />
                 <span>Message Artisan on WhatsApp</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsReportModalOpen(true);
+                  const elem = document.getElementById('buyer-feedback');
+                  if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#F5F0E8] hover:bg-[#EBE3D5] text-[#1E211F] border border-[#D8D0C4] rounded-xl text-xs font-semibold transition-colors"
+              >
+                <MessageSquare className="w-4 h-4 text-[#B85C43]" />
+                <span>Leave Review & Authenticity Feedback</span>
+              </button>
             </div>
           </div>
 
@@ -253,6 +277,33 @@ export function ProductView({ product }: ProductViewProps) {
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal leading-tight text-[#1E211F]">
                 {activeTitle}
               </h1>
+
+              {/* Star Rating & Buyer Feedback Anchor Link */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <div className="flex items-center gap-1 text-amber-500">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                  <span className="text-sm font-bold text-[#1E211F]">
+                    {initialFeedbacks.length > 0
+                      ? (initialFeedbacks.reduce((acc, f) => acc + f.rating, 0) / initialFeedbacks.length).toFixed(1)
+                      : '5.0'}
+                  </span>
+                  <span className="text-xs text-[#68655F]">
+                    ({initialFeedbacks.length} {initialFeedbacks.length === 1 ? 'review' : 'reviews'})
+                  </span>
+                </div>
+                <span className="text-[#D8D0C4]">•</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const elem = document.getElementById('buyer-feedback');
+                    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-xs font-semibold text-[#B85C43] hover:underline flex items-center gap-1"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>Read or Write Customer Feedback</span>
+                </button>
+              </div>
 
               {/* Price Display */}
               <div className="flex items-baseline gap-3 pt-2">
@@ -364,20 +415,37 @@ export function ProductView({ product }: ProductViewProps) {
               </div>
             )}
 
-            {/* Footer Workspace Link */}
-            <div className="pt-4 flex items-center justify-between text-xs text-[#68655F] border-t border-[#D8D0C4]">
-              <span>Catalogue ID: <code className="text-[#1E211F]">{product.id}</code></span>
-              <Link
-                href="/workspace"
-                className="flex items-center gap-1 font-medium text-[#B85C43] hover:underline"
-              >
-                <span>Edit or refine in Workspace</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
+              {/* Footer Workspace Link */}
+              <div className="pt-4 flex items-center justify-between text-xs text-[#68655F] border-t border-[#D8D0C4]">
+                <span>Catalogue ID: <code className="text-[#1E211F]">{product.id}</code></span>
+                <Link
+                  href="/workspace"
+                  className="flex items-center gap-1 font-medium text-[#B85C43] hover:underline"
+                >
+                  <span>Edit or refine in Workspace</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
-  );
-}
+
+          {/* Dedicated Authenticity & Community Feedback Suite */}
+          <div id="buyer-feedback" className="mt-12 sm:mt-16 space-y-10 border-t border-[#D8D0C4] pt-10">
+            {/* Gemini AI Authenticity & Anti-Counterfeit Audit */}
+            <AuthenticityInspector
+              audit={audit}
+              onOpenReportModal={() => setIsReportModalOpen(true)}
+            />
+
+            {/* Transparent Buyer Feedback & Reviews */}
+            <ProductFeedbackSection
+              productId={product.id}
+              initialFeedbacks={initialFeedbacks}
+              isOpenReportModal={isReportModalOpen}
+              onCloseReportModal={() => setIsReportModalOpen(false)}
+            />
+          </div>
+        </main>
+      </div>
+    );
+  }
