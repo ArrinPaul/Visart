@@ -47,6 +47,9 @@ export type CustomerFeedback = {
   productId: string;
   userName: string;
   userLocation?: string;
+  // Always written as `true` by lib/supabase/feedback.ts#submitProductFeedback — there is no
+  // order/purchase table anywhere in this schema to verify against. See docs/SECURITY.md finding
+  // about "Verified Buyer".
   isVerifiedBuyer: boolean;
   rating: number; // 1 - 5
   authenticityRating: FeedbackAuthenticityRating;

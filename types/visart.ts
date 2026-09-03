@@ -21,6 +21,10 @@ export type ArtisanInputData = {
   preferredLanguage?: string;
 };
 
+// Hand-written twin of the z.infer'd type of the same name in lib/validation/visart.ts, and must
+// also match the Gemini `responseSchema` object field-for-field in lib/ai/visart.ts. `translations`
+// below only has hindi/kannada — see docs/features/translation.md before adding a language here
+// without also updating the other two.
 export type VisartGeneration = {
   product: {
     title: string;

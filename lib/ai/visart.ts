@@ -132,6 +132,10 @@ function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
+// Tries GEMINI_MODEL first, then this hardcoded fallback roster in order, on transient errors
+// (see isTransientError below). generateVisartListing retries each candidate twice before moving
+// to the next; if every candidate fails and demo mode is on, getMockGeneration() is returned
+// instead of throwing. Keep this list and lib/ai/authenticity.ts's copy in sync if it changes.
 function getCandidateModels(): string[] {
   return Array.from(
     new Set(

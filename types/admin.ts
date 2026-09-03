@@ -22,6 +22,8 @@ export interface AdminDashboardStats {
   flaggedReviewsCount: number;
   estimatedCatalogValueInr: number;
   averageReadinessScore: number;
+  // Hardcoded in lib/supabase/admin.ts#getAdminDashboardStats — not derived from any historical
+  // data, since nothing in this app stores a time series. See docs/TECHNICAL_DEBT.md.
   growthRates: {
     products: number;
     artisans: number;
@@ -70,6 +72,9 @@ export interface ReviewModerationItem extends CustomerFeedback {
   status: "APPROVED" | "PENDING" | "FLAGGED" | "REJECTED";
 }
 
+// Only `supabaseDb` is ever populated from a real check (lib/supabase/admin.ts pings the DB);
+// `geminiAi` and `audioEngine` are always hardcoded "healthy" with fixed latency values — this
+// type documents the intended shape, not a guarantee every field reflects reality.
 export interface SystemHealthMetrics {
   status: "healthy" | "degraded" | "down";
   supabaseDb: {
@@ -89,6 +94,8 @@ export interface SystemHealthMetrics {
   timestamp: string;
 }
 
+// Every field here comes back as a hardcoded literal from lib/supabase/admin.ts#getPerformanceAnalytics
+// — no telemetry collection exists in this codebase.
 export interface PerformanceMetrics {
   generationLatency: {
     avg: number;
@@ -134,6 +141,9 @@ export interface ActivityLog {
   details: string;
 }
 
+// Persisted only to localStorage (lib/supabase/admin.ts) — no Supabase table backs this. Changing
+// `geminiModel` through the settings UI does not change which model lib/ai/visart.ts or
+// lib/ai/authenticity.ts actually call; those read process.env.GEMINI_MODEL at request time.
 export interface AdminSystemSettings {
   siteTitle: string;
   maintenanceMode: boolean;

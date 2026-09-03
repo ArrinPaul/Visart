@@ -25,6 +25,9 @@ export type WorkspaceTab =
 export interface ProductFormData {
   productName?: string;
   material: string;
+  // Deliberately a string here (raw form input, may include currency symbols/commas) — callers
+  // must parse it to a number before it reaches ProductInputData/VisartInput (types/visart.ts),
+  // which use `number`. See lib/frontend/generationClient.ts for the parsing step.
   productionCost: string;
   timeRequired: string;
   location: string;

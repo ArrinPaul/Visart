@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+// Two independent things share the name "VisartGeneration": this file's z.infer'd type (used to
+// validate Gemini's raw JSON response and API request/response bodies) and a hand-written
+// interface of the same name in types/visart.ts (used everywhere else in the app). They are not
+// the same declaration and TypeScript will not warn you if they drift apart — this schema must
+// also be kept in sync with the Gemini `responseSchema` object in lib/ai/visart.ts (same fields,
+// same required-ness) or generation will throw a Zod validation error at runtime. Changing one of
+// these three without the other two is the most common way to break the generation pipeline.
 export const VisartInputSchema = z.object({
   productName: z.string().optional(),
   material: z.string().min(1, "Material is required"),

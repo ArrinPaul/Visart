@@ -14,6 +14,10 @@ function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
+// Same fallback roster and retry pattern as getCandidateModels() in lib/ai/visart.ts — kept as a
+// separate copy rather than a shared import, so if you change one cascade, check whether the
+// other (visart.ts's listing generation, or this file's audit/feedback-risk generation) needs the
+// same change. See docs/ARCHITECTURE.md for the shared cascade behavior.
 function getCandidateModels(): string[] {
   return Array.from(
     new Set(
@@ -131,6 +135,11 @@ const feedbackRiskAnalysisSchema = {
 /**
  * Deterministic / Craft-specific mock audit for instant demo mode fallback
  */
+// communityTrustScore's derivation (positive-rating ratio over total feedback) is duplicated
+// verbatim in generateAuthenticityAudit() below — if you change this formula, change both, or
+// factor it out. overallScore/verdict here are keyed off `flaggedCount` only, not any of the
+// Gemini-scored dimensions (those don't exist in mock mode), so this mock intentionally skews
+// positive unless buyers have actually flagged the product as fake.
 export function getMockAuthenticityAudit(
   product: ProductRecord,
   feedbacks: CustomerFeedback[] = []
@@ -307,6 +316,10 @@ Output JSON strictly adhering to schema.`;
       communityTrustScore = Math.round((positiveRatings / totalFeedbackCount) * 100);
     }
 
+    // `|| 95` (etc.) below silently substitutes a near-max score whenever Gemini omits or returns
+    // a falsy value for a field — including a real, intentional 0. This means a low/zero score
+    // from the model is indistinguishable from a missing field and will read as "verified" rather
+    // than surfacing the gap. Treat any `95`-heavy audit result with suspicion when debugging.
     return {
       productId: product.id,
       overallScore: parsed.overallScore || 95,

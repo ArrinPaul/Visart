@@ -79,6 +79,11 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
 /**
  * Finds the most authentic voice available in the client browser for the requested language
  */
+// Fallback priority per language: exact locale match -> any voice with that language prefix ->
+// name-matched voice (hardcoded known voice names like "swara"/"hemant"/"gagan" from common OS
+// voice packs) -> a phonetically-adjacent locale (Indian English for Hindi/Kannada, Hindi for
+// Kannada) -> whatever voice the browser lists first. Voice availability is entirely OS/browser
+// dependent — this ordering is a best-effort heuristic, not a guarantee any given step matches.
 export function getBestVoiceForLanguage(language: TTSLanguage): SpeechSynthesisVoice | null {
   const voices = loadVoices();
   if (!voices || voices.length === 0) {

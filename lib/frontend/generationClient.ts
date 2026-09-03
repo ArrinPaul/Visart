@@ -2,6 +2,10 @@ import { VisartGeneration } from "@/types/visart";
 import { ProductFormData } from "@/types/frontend";
 import { getMockGeneration } from "@/lib/ai/visart";
 
+// Client-side resize/compress before the image ever leaves the browser: downscales to a 1200px
+// longest edge and re-encodes as JPEG q=0.85 via a <canvas>. Only reached on the real-mode branch
+// in generateListing() below that actually POSTs to /api/generate — demo mode never calls this,
+// since it never sends the image to the server at all.
 async function processImageForAI(file: File): Promise<{ imageBase64: string; mimeType: string }> {
   return new Promise((resolve) => {
     if (typeof window === "undefined") {
@@ -59,6 +63,10 @@ async function processImageForAI(file: File): Promise<{ imageBase64: string; mim
   });
 }
 
+// In demo mode (the default — see docs/ARCHITECTURE.md) this function never calls
+// POST /api/generate at all; it calls getMockGeneration() directly in the browser and simulates
+// network latency with a fixed 2s delay. app/api/generate/route.ts is only exercised when
+// NEXT_PUBLIC_VISART_DEMO_MODE is explicitly "false".
 export async function generateListing(input: ProductFormData): Promise<VisartGeneration> {
   const isDemoMode = process.env.NEXT_PUBLIC_VISART_DEMO_MODE !== "false";
   const start = performance.now();

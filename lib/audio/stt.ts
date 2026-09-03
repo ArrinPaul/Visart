@@ -10,6 +10,10 @@ import { useState, useCallback, useRef, useEffect } from "react";
 // Browser recognition types
 type SpeechRecognitionType = any;
 
+// Web Speech API's SpeechRecognition — no server-side speech processing exists anywhere in this
+// codebase. Chromium-based browsers expose it as `webkitSpeechRecognition`; Safari/iOS and
+// Firefox have historically lacked support, in which case this returns null and every caller
+// falls back to isSpeechRecognitionSupported() below to hide voice-input UI gracefully.
 function getSpeechRecognitionConstructor(): any {
   if (typeof window === "undefined") return null;
   return (

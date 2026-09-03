@@ -35,6 +35,10 @@ create index if not exists idx_products_artisan_id on public.products(artisan_id
 create index if not exists idx_products_created_at on public.products(created_at desc);
 
 -- 3. ROW LEVEL SECURITY (RLS) POLICIES
+-- NOTE: every policy below is unconditionally permissive (`using (true)` / `with check (true)`).
+-- RLS is enabled but enforces no restriction — any holder of the public anon key can read/write
+-- every row in every table here. There is no user_id/ownership column to scope these policies to.
+-- See docs/SECURITY.md and docs/TECHNICAL_DEBT.md (TD-003) before assuming this schema is private.
 -- Enable RLS
 alter table public.artisans enable row level security;
 alter table public.products enable row level security;

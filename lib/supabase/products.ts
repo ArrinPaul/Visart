@@ -120,6 +120,12 @@ export async function saveProduct(
       : null,
   };
 
+  // Local storage is the primary write, not a cache: it happens unconditionally, and reads
+  // (getProductById/getRecentProducts) check it before Supabase. The Supabase write below is
+  // best-effort — failures are caught and logged, never surfaced to the caller — so a product can
+  // exist locally without ever reaching the database, and local/remote state can diverge silently.
+  // This is intentional (keeps the app fully usable with zero external config); see
+  // docs/adr/001-demo-mode-dual-persistence.md before changing the read/write order.
   // 1. Always store locally for zero-latency workspace preview & offline fallback
   saveToLocalStorage(record);
 

@@ -1,5 +1,9 @@
 import type { ProductRecord } from '@/types/visart';
 
+// Hardcoded demo catalogue, always present in lib/supabase/products.ts's in-memory store (merged
+// ahead of/alongside any real Supabase data) so /workspace and /product/[id] always have something
+// to render with zero configuration. `translations` on each entry only ever has `hindi`/`kannada`
+// keys — see docs/features/translation.md for why those are the only two languages implemented.
 export const SEED_PRODUCTS: ProductRecord[] = [
   {
     id: 'demo-bamboo-basket',

@@ -147,6 +147,10 @@ function saveLocalStoredFeedback(allFeedback: Record<string, CustomerFeedback[]>
  * Fetch all customer feedback for a product
  */
 export async function getProductFeedback(productId: string): Promise<CustomerFeedback[]> {
+  // Read order here is the reverse of lib/supabase/products.ts: this prefers a non-empty Supabase
+  // result over the local copy (see the `data.length > 0` check below), where products.ts prefers
+  // local/memory over Supabase. Keep this asymmetry in mind if you're debugging why a product and
+  // its reviews appear to come from different sources of truth in the same request.
   // 1. Check local / in-memory first
   const localMap = getLocalStoredFeedback();
   const localList = localMap[productId] || memoryFeedbackStore.get(productId) || [];
@@ -223,6 +227,10 @@ export async function submitProductFeedback(
     comment: input.comment,
     craftChecks: input.craftChecks,
     suspectedCounterfeitReason: input.suspectedCounterfeitReason,
+    // isVerifiedBuyer above is always `true` — there is no order/purchase table anywhere in this
+    // schema to verify against (see docs/SECURITY.md finding #5). flaggedAsFake below combines the
+    // buyer's own verdict with the AI risk score at a fixed 60-point threshold; the AI call
+    // (analyzeFeedbackWithGemini) already ran above before this object is built.
     flaggedAsFake: isFakeVerdict || (geminiAnalysis?.riskScore ? geminiAnalysis.riskScore > 60 : false),
     helpfulCount: 0,
     createdAt: new Date().toISOString(),

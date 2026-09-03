@@ -7,6 +7,10 @@ export type UploadImageResult = {
   error?: string;
 };
 
+// These constraints are enforced here only — the Supabase Storage policies in supabase/schema.sql
+// (public insert on the `product-images` bucket) impose no size/type restriction of their own, so
+// a direct API call bypassing this function is not bound by ALLOWED_MIME_TYPES/MAX_FILE_SIZE_BYTES.
+// See docs/SECURITY.md finding #4.
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
 
@@ -71,6 +75,8 @@ export async function uploadProductImage(file: File): Promise<UploadImageResult>
   }
 
   // Fallback: create base64 data URL for offline / local demo resilience
+  // This data: URL is what ends up stored as products.image_url when Supabase Storage isn't
+  // configured or the upload fails — see docs/DATABASE.md's note on that column.
   if (typeof window !== "undefined" && typeof FileReader !== "undefined") {
     return new Promise((resolve) => {
       const reader = new FileReader();

@@ -1,5 +1,10 @@
 import { VisartGeneration } from "@/types/visart";
 
+// Static "before/after" example used only by components/landing/TransformationSection.tsx on the
+// marketing homepage. Unrelated to the runtime demo-mode fallback (getMockGeneration() in
+// lib/ai/visart.ts, which is dynamic/input-derived) or the seeded catalogue (lib/data/seed.ts) —
+// this codebase has three separate static/mock data sources; don't assume changing one affects
+// the others.
 export const demoProduct: VisartGeneration = {
   product: {
     title: "Handcrafted Assamese Bamboo Basket",
