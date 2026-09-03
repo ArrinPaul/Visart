@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// No auth — any caller can submit a review as any userName with isVerifiedBuyer implicitly true
+// (see lib/supabase/feedback.ts and docs/SECURITY.md finding #5). No rate limiting either.
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as SubmitFeedbackInput;

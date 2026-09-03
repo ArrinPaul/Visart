@@ -6,6 +6,10 @@ import {
   addCustomerLead,
 } from "@/lib/supabase/admin";
 
+// No auth check (see docs/SECURITY.md) — this returns customer leads including email/phone/
+// location with no access control. Backing data is not in Postgres: artisans come from an
+// in-memory seeded Map and customers from localStorage (see lib/supabase/admin.ts), not the
+// `artisans` table in supabase/schema.sql.
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

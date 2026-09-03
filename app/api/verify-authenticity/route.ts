@@ -3,6 +3,9 @@ import { getProductById } from "@/lib/supabase/products";
 import { getProductFeedback } from "@/lib/supabase/feedback";
 import { generateAuthenticityAudit } from "@/lib/ai/authenticity";
 
+// No auth, no rate limiting, no caching — every call regenerates the audit via Gemini (or its
+// mock fallback). app/product/[id]/page.tsx already runs this same pipeline server-side on every
+// page load; this route exists for client-triggered re-checks (see AuthenticityInspector).
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

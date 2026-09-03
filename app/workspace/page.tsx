@@ -26,6 +26,11 @@ export default async function WorkspacePage({ searchParams }: WorkspacePageProps
     activeProduct = await getProductById(requestedId);
   }
 
+  // Silent fallback: if ?id= doesn't resolve (e.g. the product was saved to a different
+  // browser's localStorage, or this is a fresh server process with no Supabase configured — see
+  // docs/adr/001-demo-mode-dual-persistence.md), this renders an unrelated recent/seed product
+  // instead of a "not found" state. WorkspaceContainer re-resolves the requested id client-side
+  // afterward, so this mismatch is usually brief but can be visible on first paint.
   if (!activeProduct) {
     activeProduct = recentProducts[0] || SEED_PRODUCTS[0];
   }

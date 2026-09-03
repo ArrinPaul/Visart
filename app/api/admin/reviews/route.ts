@@ -14,6 +14,9 @@ export async function GET() {
   }
 }
 
+// No auth check (see docs/SECURITY.md). Also note: updateReviewStatus does not write to the
+// product_feedback table — moderation status is localStorage-only and not shared across
+// admins/devices (verify current behavior in lib/supabase/admin.ts before relying on it).
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();

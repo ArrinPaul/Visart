@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { VisartInputSchema } from "@/lib/validation/visart";
 import { generateVisartListing } from "@/lib/ai/visart";
 
+// No auth, no rate limiting — every call here invokes the paid Gemini API (see
+// docs/TECHNICAL_DEBT.md TD-004). In demo mode the browser normally never reaches this route at
+// all (lib/frontend/generationClient.ts short-circuits to a client-side mock); this handler is
+// primarily exercised when NEXT_PUBLIC_VISART_DEMO_MODE === "false".
 export async function POST(req: NextRequest) {
   const reqStart = performance.now();
   console.log("[VISART DEBUG] /api/generate entered");

@@ -24,12 +24,18 @@ export const metadata: Metadata = {
   description: "An artisan platform turning handmade craft into professional, market-ready digital stories, fair price guidance, multilingual reach, and shareable catalogue pages.",
 };
 
+// Root layout — wraps every route (marketing pages, /create, /workspace, /product/[id], and
+// /admin all render inside this shell). See docs/ARCHITECTURE.md for how this fits the rest of
+// the app, and docs/CODEBASE_MAP.md for this file's entry in the directory map.
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
+    /* suppressHydrationWarning on <html>/<body> guards against SSR/client markup mismatches
+       caused by third-party browser extensions injecting attributes before hydration runs, not a
+       fix for an app-caused mismatch. */
     <html lang="en" className={`${playfair.variable} ${inter.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen bg-[#F5F0E8] text-[#1E211F] antialiased selection:bg-[#B85C43]/20 selection:text-[#1E211F]" suppressHydrationWarning>
         <AccessibilityProvider>

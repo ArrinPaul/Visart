@@ -48,7 +48,12 @@ import {
 import { updateProductData } from "@/lib/supabase/products";
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // Default to authenticated for instant accessibility
+  // SECURITY: this is not a real auth gate. It defaults to true, and the only way it flips to
+  // false is the localStorage read below finding the literal string "unauthenticated" — nothing
+  // in this app ever writes that value. No app/api/admin/* route checks this state either, so it
+  // is UI-only. See docs/AUTHENTICATION.md and docs/TECHNICAL_DEBT.md (TD-001) before changing
+  // anything that assumes this flag means the request is actually privileged.
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [currentView, setCurrentView] = useState<AdminView>("dashboard");
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);

@@ -6,6 +6,10 @@ import {
 } from "@/lib/supabase/admin";
 import { updateProductData } from "@/lib/supabase/products";
 
+// SECURITY: none of the handlers in this file check any auth header/cookie/session — GET, PATCH
+// (edit/publish-toggle), and DELETE all execute unconditionally for any caller. The /admin UI's
+// login screen does not protect this route. See docs/SECURITY.md and docs/TECHNICAL_DEBT.md
+// (TD-001) before assuming these actions are admin-only in practice.
 export async function GET() {
   try {
     const products = await getAdminProductsCMS();

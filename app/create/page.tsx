@@ -81,6 +81,8 @@ export default function CreatePage() {
         console.log("[VISART] Starting concurrent AI generation and image upload pipeline...");
       }
 
+      // generateListing() decides internally whether to call POST /api/generate or return a
+      // client-side mock (NEXT_PUBLIC_VISART_DEMO_MODE) — see lib/frontend/generationClient.ts.
       const generationPromise = generateListing(formData);
 
       const imageUploadPromise = formData.imageFile
@@ -111,6 +113,9 @@ export default function CreatePage() {
       console.log(`[VISART DEBUG] SAVE generated price: ₹${generation.pricing.recommended}`);
 
       // Step 3: Persist product & artisan data (Member C)
+      // Artisan name is hardcoded — this form never collects who the artisan actually is, so
+      // every listing created here is attributed to the same generic "Local Artisan" identity.
+      // See docs/AUTHENTICATION.md: there is no artisan account/identity concept anywhere.
       const saved = await saveProduct({
         inputData: formData,
         generatedData: generation,

@@ -14,6 +14,9 @@ interface ProductPageProps {
   }>;
 }
 
+// Next.js calls generateMetadata and the page component separately, so getProductById below runs
+// twice per request (once here, once in ProductPage) — cheap in practice because it hits the
+// in-memory/localStorage cache path before any Supabase query (see lib/supabase/products.ts).
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;
   const product = await getProductById(id);
@@ -63,6 +66,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
     );
   }
 
+  // Authenticity audit is regenerated on every render of this page (Gemini call or mock
+  // fallback) — there is no caching/persistence of the audit result. GET /api/verify-authenticity
+  // duplicates this same call for client-triggered re-checks; see docs/features/
+  // authenticity-verification.md.
   const feedbacks = await getProductFeedback(id);
   const audit = await generateAuthenticityAudit(product, feedbacks);
 

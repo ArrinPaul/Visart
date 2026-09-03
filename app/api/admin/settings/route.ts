@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSettings, updateAdminSettings } from "@/lib/supabase/admin";
 
+// SECURITY: no auth check — PUT lets any caller overwrite platform settings with no credential.
+// See docs/SECURITY.md and docs/TECHNICAL_DEBT.md (TD-001).
 export async function GET() {
   try {
     const settings = await getAdminSettings();
