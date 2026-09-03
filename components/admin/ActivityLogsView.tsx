@@ -19,6 +19,8 @@ interface ActivityLogsViewProps {
   logs: ActivityLog[];
 }
 
+// `logs` is localStorage-only (capped at 200 entries in lib/supabase/admin.ts), seeded with a few
+// fabricated historical entries on first load — not a durable, server-side audit trail.
 export default function ActivityLogsView({ logs }: ActivityLogsViewProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");

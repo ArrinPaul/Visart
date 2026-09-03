@@ -88,6 +88,9 @@ export function ProductFeedbackSection({
     e.preventDefault();
     if (!comment.trim()) return;
 
+    // userName/userLocation are free text with a friendly default if left blank — there is no
+    // identity behind a review; "verified buyer" status is always true server-side regardless of
+    // what's submitted here. See docs/SECURITY.md (finding on "Verified Buyer").
     setSubmitting(true);
     const payload: SubmitFeedbackInput = {
       productId,

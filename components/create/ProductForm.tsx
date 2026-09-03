@@ -76,6 +76,8 @@ export default function ProductForm({ formData, onChange, errors }: ProductFormP
           </label>
           <VoiceInputButton
             fieldLabel="product story"
+            // Appends each dictation result to existing text rather than replacing it, so an
+            // artisan can dictate in multiple takes without losing earlier speech.
             onTranscript={(spokenText) => {
               const current = formData.specialStory ? `${formData.specialStory} ${spokenText}` : spokenText;
               onChange({ specialStory: current });

@@ -17,6 +17,9 @@ interface AccessibilityContextType {
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
 
+// Wraps the whole app (see app/layout.tsx). Real (not simulated) accessibility state: preferences
+// persist via lib/storage/preferences.ts (localStorage) and are applied as data-* attributes on
+// <html>, which app/globals.css reads to actually change font size/contrast/motion.
 export function AccessibilityProvider({ children }: { children: React.ReactNode }) {
   const [preferences, setPreferences] = useState<AccessibilityPreferences>(DEFAULT_PREFERENCES);
 

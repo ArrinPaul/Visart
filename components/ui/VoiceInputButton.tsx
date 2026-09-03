@@ -26,6 +26,9 @@ export function VoiceInputButton({
     setMounted(true);
   }, []);
 
+  // Renders nothing (not a disabled state) until client mount, and permanently on browsers
+  // without SpeechRecognition (notably Safari/iOS) — see lib/audio/stt.ts. A field with no visible
+  // mic icon is expected behavior there, not a bug.
   if (!mounted || !isSupported) {
     return null;
   }

@@ -11,6 +11,9 @@ interface ProductHeroProps {
   pricing: VisartGeneration["pricing"];
 }
 
+// Currently unused: no page/component imports this — components/product/ProductView.tsx
+// implements the equivalent hero/share UI inline instead. Verify with a repo search before
+// deleting or relying on it.
 export default function ProductHero({ product, pricing }: ProductHeroProps) {
   const [shared, setShared] = useState(false);
 

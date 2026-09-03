@@ -18,6 +18,11 @@ export default function ImageUploader({ onImageSelected, previewUrl: initialPrev
 
   const [photoTip, setPhotoTip] = useState<string | null>(null);
 
+  // Only validates and previews the raw file here — resizing/compression to the payload actually
+  // sent to Gemini (max 1200px, JPEG 0.85) happens later in lib/frontend/generationClient.ts,
+  // not in this component. The 8MB/type limits below are a pre-check only; storage upload
+  // (lib/supabase/storage.ts) re-validates independently since this UI can be bypassed via a
+  // direct API call.
   const handleFile = (file: File) => {
     setStatus("VALIDATING");
     setErrorMessage(null);

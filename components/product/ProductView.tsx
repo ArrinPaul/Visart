@@ -40,13 +40,19 @@ export function ProductView({ product, initialFeedbacks = [], initialAudit }: Pr
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
+  // Falls back to a fully client-side mock audit if the server component didn't pass one — this
+  // fallback ignores NEXT_PUBLIC_VISART_DEMO_MODE entirely (unlike the server-side pipeline in
+  // lib/ai/authenticity.ts, which only mocks on real Gemini failure); in practice
+  // app/product/[id]/page.tsx always supplies initialAudit, so this only fires if ProductView is
+  // ever rendered without a server-provided audit.
   const audit = initialAudit || getMockAuthenticityAudit(product, initialFeedbacks);
 
   const gen = product.generated_data;
   const input = product.input_data;
   const artisan = product.artisan;
 
-  // Language translation selector
+  // Only Hindi/Kannada translations exist on generated_data — any other LanguageCode value falls
+  // straight through to the English fields below. See docs/features/translation.md.
   let activeTitle = gen.product.title;
   let activeDescription = gen.product.description;
 

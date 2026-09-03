@@ -10,6 +10,9 @@ interface ProductDetailsProps {
   translations: VisartGeneration["translations"];
 }
 
+// Currently unused: no page/component imports this — components/product/ProductView.tsx
+// implements the same title/description + language switching inline instead. Verify with a repo
+// search before deleting or relying on it.
 export default function ProductDetails({ product, translations }: ProductDetailsProps) {
   const [lang, setLang] = useState<"en" | "hi" | "kn">("en");
 

@@ -4,6 +4,10 @@ import React, { useState } from "react";
 import { Mic, Volume2, Globe2, Sparkles, Check, Play, Pause } from "lucide-react";
 import FadeIn from "@/components/motion/FadeIn";
 
+// Marketing demo only: `samples` below are fixed, hand-written strings, not real /create output.
+// Speech playback also calls the Web Speech API directly here instead of reusing
+// lib/audio/tts.ts's speakText()/useAudioPlayer() — this is a second, independent implementation
+// of the same browser API, not shared code.
 export default function VoiceAccessibilitySection() {
   const [activeLang, setActiveLang] = useState<"hi" | "kn" | "en">("hi");
   const [playing, setPlaying] = useState(false);

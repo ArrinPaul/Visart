@@ -31,6 +31,9 @@ interface DashboardViewProps {
   onNavigate: (view: AdminView) => void;
 }
 
+// Dashboard "at a glance" view. Only totalProducts/totalArtisans/totalCustomers/totalReviews and
+// the System Health latency numbers reflect real data; growth.* percentages below and the
+// System Health "Operational" badge are not computed from telemetry — see docs/features/admin-cms.md.
 export default function DashboardView({
   stats,
   health,
@@ -42,6 +45,8 @@ export default function DashboardView({
       label: "Total Products",
       value: stats?.totalProducts || 0,
       subValue: `${stats?.activePublishedProducts || 0} Published`,
+      // Fallback literal (24.5) doubles as the value shown whenever stats.growthRates.products
+      // is itself a hardcoded constant from lib/supabase/admin.ts — not a "no data yet" case.
       growth: stats?.growthRates.products || 24.5,
       icon: Package,
       color: "text-[#B85C43]",

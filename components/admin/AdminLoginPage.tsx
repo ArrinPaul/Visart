@@ -19,6 +19,11 @@ interface AdminLoginPageProps {
   onLoginSuccess: () => void;
 }
 
+// SECURITY: these are demo credentials shipped in the client bundle, not a secret store — anyone
+// can read them via devtools. This screen also has no server-side counterpart: no app/api/admin/*
+// route verifies a session, and app/admin/page.tsx's isAuthenticated state defaults to true
+// regardless of this form. Do not treat this as an access-control boundary. See
+// docs/AUTHENTICATION.md and docs/TECHNICAL_DEBT.md (TD-001) before relying on or extending it.
 export const ADMIN_CREDENTIALS = {
   email: "admin@visart.in",
   password: "visart@2026",

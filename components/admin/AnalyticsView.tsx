@@ -16,6 +16,10 @@ interface AnalyticsViewProps {
   performance: PerformanceMetrics | null;
 }
 
+// Every number in this view is either a hardcoded constant defined right here (trendData, the
+// growth-% labels below, geographicBreakdown) or a hardcoded constant from lib/supabase/admin.ts
+// (performance.popularCraftCategories) — none of it is measured telemetry. See
+// docs/features/admin-cms.md before treating this view as real analytics.
 export default function AnalyticsView({ performance }: AnalyticsViewProps) {
   const [timeRange, setTimeRange] = useState<"7" | "30" | "90">("30");
 

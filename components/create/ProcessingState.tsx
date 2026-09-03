@@ -28,6 +28,11 @@ export default function ProcessingState({
 }: ProcessingStateProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
+  // These 5 stages are a purely cosmetic timer (500ms/stage) decoupled from the real generation
+  // call's progress — there's no actual per-stage backend signal. `isComplete` (driven by the
+  // real API/mock promise resolving) only gates whether stage 05 is allowed to finish; if
+  // generation is slower than 2.5s, the UI parks on stage 05 via `isFinalizing` below rather than
+  // lying about a stage that hasn't happened.
   // Advance stages 01 -> 04 at steady editorial cadence (~500ms)
   useEffect(() => {
     if (error) return;

@@ -20,6 +20,9 @@ interface CustomersViewProps {
   onAddCustomer: (lead: Omit<CustomerLead, "id" | "lastActive">) => Promise<void>;
 }
 
+// Backed entirely by localStorage (lib/supabase/admin.ts) — there is no `customers`/`leads` table
+// in supabase/schema.sql. Data here is per-browser only, not shared across admin sessions/devices,
+// and includes customer PII (email/phone/location) with no access control — see docs/SECURITY.md.
 export default function CustomersView({
   customers,
   onAddCustomer,

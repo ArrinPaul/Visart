@@ -21,6 +21,10 @@ interface ReviewsCMSViewProps {
   onUpdateStatus: (reviewId: string, status: "APPROVED" | "FLAGGED" | "REJECTED") => Promise<void>;
 }
 
+// `reviews` content is real (from the product_feedback table), but onUpdateStatus writes the
+// moderation status to localStorage only — it never reaches Supabase, so approving/flagging a
+// review here does not change what product_feedback.flagged_as_fake shows elsewhere. See
+// docs/DATABASE.md and docs/features/admin-cms.md.
 export default function ReviewsCMSView({
   reviews,
   onUpdateStatus,

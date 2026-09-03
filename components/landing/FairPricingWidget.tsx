@@ -5,6 +5,12 @@ import { IndianRupee, Sparkles, Clock, ShieldCheck, ArrowRight, HelpCircle } fro
 import Link from "next/link";
 import FadeIn from "@/components/motion/FadeIn";
 
+// Landing-page-only pricing simulator. This formula is entirely independent of the real pricing
+// logic in lib/ai/visart.ts (which prompts Gemini for pricing, or uses getMockGeneration's
+// cost*multiplier formula) — nothing here is wired to /create or /api/generate. It exists purely
+// to demonstrate the pricing concept before an artisan starts the real flow. If the real pricing
+// model changes, this widget will silently keep showing its own separate numbers unless updated
+// in step — see docs/features/fair-pricing.md.
 export default function FairPricingWidget() {
   const [materialCost, setMaterialCost] = useState<number>(450);
   const [craftDays, setCraftDays] = useState<number>(2);

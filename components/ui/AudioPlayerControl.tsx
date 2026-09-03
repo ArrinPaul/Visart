@@ -27,6 +27,8 @@ export function AudioPlayerControl({
     setMounted(true);
   }, []);
 
+  // Same pattern as VoiceInputButton: renders nothing until client mount, and permanently on
+  // browsers without speechSynthesis support — see lib/audio/tts.ts.
   if (!mounted || !isSupported) {
     return null;
   }

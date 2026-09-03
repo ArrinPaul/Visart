@@ -9,6 +9,9 @@ interface ArtisanStoryProps {
   story: VisartGeneration["story"];
 }
 
+// Currently unused: no page/component imports this (the story card actually rendered on
+// /product/[id] is inlined directly in components/product/ProductView.tsx). Verify with a repo
+// search before deleting or relying on it, in case a future page reintroduces it.
 export default function ArtisanStory({ story }: ArtisanStoryProps) {
   return (
     <Card className="bg-[#27344A] text-[#FBF8F2] border-[#A88752]/40 p-8 flex flex-col gap-4">

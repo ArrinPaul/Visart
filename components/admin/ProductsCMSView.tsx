@@ -27,6 +27,10 @@ interface ProductsCMSViewProps {
   onUpdateProduct: (productId: string, patch: Partial<VisartGeneration>) => Promise<void>;
 }
 
+// Product data itself is real (products table / local fallback). `p.totalInquiries` rendered
+// below is the one exception — it's regenerated randomly on every fetch in lib/supabase/admin.ts,
+// not a stored count. Delete/publish-toggle here hit app/api/admin/products, which has no
+// server-side auth check — see docs/SECURITY.md.
 export default function ProductsCMSView({
   products,
   onTogglePublish,

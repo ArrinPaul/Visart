@@ -19,6 +19,9 @@ interface PerformanceViewProps {
   performance: PerformanceMetrics | null;
 }
 
+// health.supabaseDb is a real (if crude) round-trip measurement; health.geminiAi/audioEngine and
+// most of `performance` are hardcoded constants from lib/supabase/admin.ts — see
+// docs/features/admin-cms.md for which fields are which before wiring anything to this view.
 export default function PerformanceView({
   health,
   performance,
