@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:auth": "node --experimental-strip-types lib/auth/email.test.mts && node --experimental-strip-types lib/auth/password.test.mts && node --experimental-strip-types lib/auth/sessionToken.test.mts && node --experimental-strip-types lib/auth/sessionExpiry.test.mts && node --experimental-strip-types lib/auth/cookie.test.mts && node --experimental-strip-types lib/auth/origin.test.mts && node --experimental-strip-types lib/auth/loginDecision.test.mts && node --experimental-strip-types lib/auth/session.test.mts",
+    "test:auth": "node --experimental-strip-types lib/auth/email.test.mts && node --experimental-strip-types lib/auth/password.test.mts && node --experimental-strip-types lib/auth/sessionToken.test.mts && node --experimental-strip-types lib/auth/sessionExpiry.test.mts && node --experimental-strip-types lib/auth/cookie.test.mts && node --experimental-strip-types lib/auth/origin.test.mts && node --experimental-strip-types lib/auth/loginDecision.test.mts && node --experimental-strip-types lib/auth/session.test.mts && node --experimental-strip-types lib/auth/requireAdmin.test.mts",
     "provision:admin": "node --experimental-strip-types scripts/provision-admin.mts"
   },
   "dependencies": {

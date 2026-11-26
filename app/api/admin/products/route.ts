@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 import {
   getAdminProductsCMS,
   toggleProductPublish,
@@ -6,11 +7,12 @@ import {
 } from "@/lib/supabase/admin";
 import { updateProductData } from "@/lib/supabase/products";
 
-// SECURITY: none of the handlers in this file check any auth header/cookie/session — GET, PATCH
-// (edit/publish-toggle), and DELETE all execute unconditionally for any caller. The /admin UI's
-// login screen does not protect this route. See docs/SECURITY.md and docs/TECHNICAL_DEBT.md
-// (TD-001) before assuming these actions are admin-only in practice.
-export async function GET() {
+// Requires an admin session (requireAdmin). The /admin screen does not call this route; it reads
+// lib/supabase/* from the browser, so this guard does not protect that path (docs/AUTHENTICATION.md).
+export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const products = await getAdminProductsCMS();
     return NextResponse.json({ success: true, products });
@@ -24,6 +26,9 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
     const { productId, isPublished, patch } = body;
@@ -59,6 +64,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const { searchParams } = new URL(req.url);
     const productId = searchParams.get("id");

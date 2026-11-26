@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { getAllReviewsCMS, updateReviewStatus } from "@/lib/supabase/admin";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const reviews = await getAllReviewsCMS();
     return NextResponse.json({ success: true, reviews });
@@ -14,10 +18,13 @@ export async function GET() {
   }
 }
 
-// No auth check (see docs/SECURITY.md). Also note: updateReviewStatus does not write to the
+// Requires an admin session. Note: updateReviewStatus does not write to the
 // product_feedback table — moderation status is localStorage-only and not shared across
 // admins/devices (verify current behavior in lib/supabase/admin.ts before relying on it).
 export async function PATCH(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
     const { reviewId, status } = body;

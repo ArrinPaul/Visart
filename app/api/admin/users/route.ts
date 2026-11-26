@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 import {
   getArtisansList,
   updateArtisanStatus,
@@ -6,11 +7,14 @@ import {
   addCustomerLead,
 } from "@/lib/supabase/admin";
 
-// No auth check (see docs/SECURITY.md) — this returns customer leads including email/phone/
-// location with no access control. Backing data is not in Postgres: artisans come from an
+// Requires an admin session; returns customer leads including email/phone/location.
+// Backing data is not in Postgres: artisans come from an
 // in-memory seeded Map and customers from localStorage (see lib/supabase/admin.ts), not the
 // `artisans` table in supabase/schema.sql.
 export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "all";
@@ -42,6 +46,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
     const { artisanId, status } = body;
@@ -65,6 +72,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
     const newLead = await addCustomerLead(body);

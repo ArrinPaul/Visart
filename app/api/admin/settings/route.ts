@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { getAdminSettings, updateAdminSettings } from "@/lib/supabase/admin";
 
-// SECURITY: no auth check — PUT lets any caller overwrite platform settings with no credential.
-// See docs/SECURITY.md and docs/TECHNICAL_DEBT.md (TD-001).
-export async function GET() {
+// Requires an admin session (requireAdmin). The /admin screen does not call this route; it reads
+// lib/supabase/* from the browser, so this guard does not protect that path (docs/AUTHENTICATION.md).
+export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const settings = await getAdminSettings();
     return NextResponse.json({ success: true, settings });
@@ -17,6 +21,9 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
     const updated = await updateAdminSettings(body);
