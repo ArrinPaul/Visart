@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:auth": "node --experimental-strip-types lib/auth/email.test.mts && node --experimental-strip-types lib/auth/password.test.mts && node --experimental-strip-types lib/auth/sessionToken.test.mts && node --experimental-strip-types lib/auth/sessionExpiry.test.mts && node --experimental-strip-types lib/auth/cookie.test.mts && node --experimental-strip-types lib/auth/origin.test.mts && node --experimental-strip-types lib/auth/loginDecision.test.mts && node --experimental-strip-types lib/auth/session.test.mts && node --experimental-strip-types lib/auth/requireAdmin.test.mts",
-    "test:ml": "node --experimental-strip-types lib/ml/claim.test.mts && node --experimental-strip-types lib/ml/imageSource.test.mts",
+    "test:ml": "node --experimental-strip-types lib/ml/claim.test.mts && node --experimental-strip-types lib/ml/imageSource.test.mts && node --experimental-strip-types lib/ml/verifyListing.test.mts",
     "provision:admin": "node --experimental-strip-types scripts/provision-admin.mts"
   },
   "dependencies": {
