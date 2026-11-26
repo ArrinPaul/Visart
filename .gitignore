@@ -43,3 +43,6 @@ digest.txt
 __pycache__/
 .venv/
 .pytest_cache/
+
+# dataset photos are shared outside git
+ml-service/data/

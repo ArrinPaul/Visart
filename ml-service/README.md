@@ -13,3 +13,7 @@ Scores product photos. Today it returns rule-based quality tips only; `classific
 ## Test
 
     .venv\Scripts\python -m pytest -q
+
+## Dataset
+
+See [DATA.md](DATA.md). `python manifest.py` counts the collected photos and lists problems.
