@@ -17,8 +17,8 @@ interface SettingsViewProps {
 
 // Saved settings persist to localStorage only (lib/supabase/admin.ts), not Supabase or any
 // server-side config. In particular, changing `geminiModel` below does NOT change which model
-// lib/ai/visart.ts actually calls at request time — that reads process.env.GEMINI_MODEL, which
-// this UI cannot touch. See docs/API.md (settings endpoint) and docs/features/admin-cms.md.
+// lib/ai/visart.ts actually calls at request time — that reads process.env.GEMINI_MODEL, which this
+// UI cannot touch.
 export default function SettingsView({
   settings,
   onUpdateSettings,

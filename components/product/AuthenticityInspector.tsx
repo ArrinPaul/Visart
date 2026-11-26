@@ -71,7 +71,7 @@ export function AuthenticityInspector({
           {/* "Cryptographically grounded" overstates the mechanism — there is no cryptographic
               verification anywhere in this pipeline; `audit` is plain Gemini-generated text
               analysis (or a deterministic mock), re-run on every page view. See
-              lib/ai/authenticity.ts and docs/features/authenticity-verification.md. */}
+              lib/ai/authenticity.ts. */}
           <p className="text-xs text-[#68655F]">
             Cryptographically grounded craft verification, material forensics & anti-counterfeit analysis.
           </p>

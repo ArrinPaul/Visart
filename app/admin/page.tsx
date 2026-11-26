@@ -48,8 +48,8 @@ import {
 import { updateProductData } from "@/lib/supabase/products";
 
 export default function AdminPage() {
-  // Mirrors the server session; null while it is being checked. This only controls what is rendered:
-  // the data calls below still use the public Supabase key (see docs/AUTHENTICATION.md).
+  // Mirrors the server session; null while it is being checked. This only controls what is
+  // rendered: the data calls below still use the public Supabase key.
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [currentView, setCurrentView] = useState<AdminView>("dashboard");
   const [collapsed, setCollapsed] = useState(false);

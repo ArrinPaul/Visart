@@ -13,8 +13,7 @@ export type Json =
 
 // Hand-maintained to mirror supabase/schema.sql — there is no `supabase gen types` step or other
 // generation tool in this project. If you change the schema, you must update this file yourself;
-// nothing will warn you if they drift apart. See docs/TECHNICAL_DEBT.md ("hand-maintained DB
-// types" item) and docs/DEVELOPMENT_GUIDE.md "Changing the Database Schema".
+// nothing will warn you if they drift apart.
 export type Database = {
   public: {
     Tables: {

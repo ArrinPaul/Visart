@@ -1,5 +1,4 @@
-// Server-only. Strict Origin-header validation for the admin login/logout endpoints (and
-// reusable for Batch 3's route guards, per the batch instructions).
+// Server-only. Strict Origin-header validation for the admin login/logout endpoints.
 //
 // Deliberately does NOT consult Host, X-Forwarded-Host, or Referer — none of those are reliable
 // proof of where a browser request actually originated (Host/X-Forwarded-Host describe where the
@@ -8,16 +7,15 @@
 // is the header browsers attach to cross-site requests specifically for this kind of check, and
 // is not under the requester's control to spoof from a browser context.
 //
-// Requires the APP_ORIGIN environment variable (see docs/ADMIN_SESSIONS.md) — no default, no
-// wildcard. If it is missing or malformed, every request is rejected (fail closed), never
-// allowed through.
+// Requires the APP_ORIGIN environment variable — no default, no wildcard. If it is missing or
+// malformed, every request is rejected (fail closed), never allowed through.
 
 function getConfiguredAppOrigin(): string {
   const configured = process.env.APP_ORIGIN;
   if (!configured || configured.trim().length === 0) {
     throw new Error(
       "APP_ORIGIN is not configured. Admin login/logout cannot proceed until it is set " +
-        "(fail-closed by design — see docs/ADMIN_SESSIONS.md)."
+        "(fail-closed by design)."
     );
   }
 

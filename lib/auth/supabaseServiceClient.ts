@@ -33,7 +33,7 @@ function getRequiredEnv(name: string): string {
   if (!value || value.trim().length === 0) {
     throw new Error(
       `${name} is not configured. Admin authentication is unavailable until it is set ` +
-        `(fail-closed by design — see docs/ADMIN_SESSIONS.md).`
+        `(fail-closed by design).`
     );
   }
   return value;

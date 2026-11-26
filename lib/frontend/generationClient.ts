@@ -63,10 +63,10 @@ async function processImageForAI(file: File): Promise<{ imageBase64: string; mim
   });
 }
 
-// In demo mode (the default — see docs/ARCHITECTURE.md) this function never calls
-// POST /api/generate at all; it calls getMockGeneration() directly in the browser and simulates
-// network latency with a fixed 2s delay. app/api/generate/route.ts is only exercised when
-// NEXT_PUBLIC_VISART_DEMO_MODE is explicitly "false".
+// In demo mode this function never calls POST /api/generate at all; it calls getMockGeneration()
+// directly in the browser and simulates network latency with a fixed 2s delay.
+// app/api/generate/route.ts is only exercised when NEXT_PUBLIC_VISART_DEMO_MODE is explicitly
+// "false".
 export async function generateListing(input: ProductFormData): Promise<VisartGeneration> {
   const isDemoMode = process.env.NEXT_PUBLIC_VISART_DEMO_MODE !== "false";
 

@@ -4,12 +4,7 @@
 
 import { SESSION_LIFETIME_SECONDS } from "./sessionExpiry.ts";
 
-// Deliberately distinct from the pre-existing, unrelated localStorage key
-// "visart_admin_session" used by the old client-side-only gate (app/admin/page.tsx) — that key
-// is a plain UI flag with no security meaning (see Phase 0 audit, TD-001) and is NOT touched or
-// replaced by this batch. This is a different mechanism (an HttpOnly cookie, not
-// JavaScript-readable localStorage) with a deliberately different name so the two are never
-// confused with each other while both exist during the migration period.
+// The "_token" suffix keeps this HttpOnly cookie distinct from older localStorage keys.
 export const ADMIN_SESSION_COOKIE_NAME = "visart_admin_session_token";
 
 export { SESSION_LIFETIME_SECONDS };

@@ -1,7 +1,3 @@
--- ==============================================================================
--- Migration: 0002_create_admin_sessions
--- Phase 1, Batch 2 — Database-Backed Admin Sessions
--- ==============================================================================
 --
 -- Purpose: back custom admin session issuance/validation/logout (app/api/admin/auth/*,
 -- lib/auth/session.ts) with a real, revocable, database-backed session store. Only a

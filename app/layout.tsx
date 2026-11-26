@@ -24,9 +24,8 @@ export const metadata: Metadata = {
   description: "An artisan platform turning handmade craft into professional, market-ready digital stories, fair price guidance, multilingual reach, and shareable catalogue pages.",
 };
 
-// Root layout — wraps every route (marketing pages, /create, /workspace, /product/[id], and
-// /admin all render inside this shell). See docs/ARCHITECTURE.md for how this fits the rest of
-// the app, and docs/CODEBASE_MAP.md for this file's entry in the directory map.
+// Root layout — wraps every route (marketing pages, /create, /workspace, /product/[id], and /admin
+// all render inside this shell).
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -52,7 +52,7 @@ export function ProductView({ product, initialFeedbacks = [], initialAudit }: Pr
   const artisan = product.artisan;
 
   // Only Hindi/Kannada translations exist on generated_data — any other LanguageCode value falls
-  // straight through to the English fields below. See docs/features/translation.md.
+  // straight through to the English fields below.
   let activeTitle = gen.product.title;
   let activeDescription = gen.product.description;
 

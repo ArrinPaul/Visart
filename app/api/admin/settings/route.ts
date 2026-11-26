@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { getAdminSettings, updateAdminSettings } from "@/lib/supabase/admin";
 
 // Requires an admin session (requireAdmin). The /admin screen does not call this route; it reads
-// lib/supabase/* from the browser, so this guard does not protect that path (docs/AUTHENTICATION.md).
+// lib/supabase/* from the browser, so this guard does not protect that path.
 export async function GET(req: NextRequest) {
   const denied = await requireAdmin(req);
   if (denied) return denied;

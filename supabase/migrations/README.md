@@ -1,11 +1,7 @@
 # Supabase migrations
 
-This directory did not exist before Phase 1, Batch 1. Prior to this, the entire
-schema lived in a single hand-maintained file, [`supabase/schema.sql`](../schema.sql)
-(see [`docs/DATABASE.md`](../../docs/DATABASE.md) and
-[`docs/DEPLOYMENT.md`](../../docs/DEPLOYMENT.md)). There is no Supabase CLI
-migration runner wired into this project and none is introduced by this change —
-these files are applied the same way `schema.sql` always has been: manually.
+The base schema is [`supabase/schema.sql`](../schema.sql). There is no migration runner: every file
+here is applied by hand in the Supabase SQL editor.
 
 ## Convention
 
@@ -15,7 +11,7 @@ these files are applied the same way `schema.sql` always has been: manually.
   automatically by any script, build step, or CI job.
 - After a migration is applied to a given Supabase project, update
   [`types/database.ts`](../../types/database.ts) by hand to match, exactly as
-  described for `schema.sql` in `docs/DATABASE.md`.
+  for any change to `schema.sql`.
 
 ## How to apply `0001_create_admin_users.sql`
 

@@ -228,9 +228,9 @@ export async function submitProductFeedback(
     craftChecks: input.craftChecks,
     suspectedCounterfeitReason: input.suspectedCounterfeitReason,
     // isVerifiedBuyer above is always `true` — there is no order/purchase table anywhere in this
-    // schema to verify against (see docs/SECURITY.md finding #5). flaggedAsFake below combines the
-    // buyer's own verdict with the AI risk score at a fixed 60-point threshold; the AI call
-    // (analyzeFeedbackWithGemini) already ran above before this object is built.
+    // schema to verify against. flaggedAsFake below combines the buyer's own verdict with the AI
+    // risk score at a fixed 60-point threshold; the AI call (analyzeFeedbackWithGemini) already ran
+    // above before this object is built.
     flaggedAsFake: isFakeVerdict || (geminiAnalysis?.riskScore ? geminiAnalysis.riskScore > 60 : false),
     helpfulCount: 0,
     createdAt: new Date().toISOString(),

@@ -30,8 +30,8 @@ interface DashboardViewProps {
 }
 
 // Dashboard "at a glance" view. Only totalProducts/totalArtisans/totalCustomers/totalReviews and
-// the System Health latency numbers reflect real data; growth.* percentages below and the
-// System Health "Operational" badge are not computed from telemetry — see docs/features/admin-cms.md.
+// the System Health latency numbers reflect real data; growth.* percentages below and the System
+// Health "Operational" badge are not computed from telemetry.
 export default function DashboardView({
   stats,
   health,

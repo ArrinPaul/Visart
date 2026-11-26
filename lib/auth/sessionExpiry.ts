@@ -1,9 +1,8 @@
 // Server-only. Pure session-lifetime logic, kept separate from lib/auth/session.ts so it is
 // testable without any database/mocking (see lib/auth/sessionExpiry.test.mts).
 
-// 7 days. This repository has no pre-existing session-lifetime requirement to match (Batch 0/0.5
-// established there is no real session mechanism prior to this batch at all), so this uses the
-// batch instructions' own example of "a reasonable fixed session lifetime." The database
+// 7 days. This repository has no pre-existing session-lifetime requirement to match, so this uses
+// the batch instructions' own example of "a reasonable fixed session lifetime." The database
 // expires_at value (lib/auth/session.ts: createSessionForAdmin) and the cookie's max-age
 // (lib/auth/cookie.ts) are both derived from this single constant so they cannot drift apart.
 export const SESSION_LIFETIME_SECONDS = 60 * 60 * 24 * 7;

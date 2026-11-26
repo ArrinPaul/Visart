@@ -65,10 +65,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     );
   }
 
-  // Authenticity audit is regenerated on every render of this page (Gemini call or mock
-  // fallback) — there is no caching/persistence of the audit result. GET /api/verify-authenticity
-  // duplicates this same call for client-triggered re-checks; see docs/features/
-  // authenticity-verification.md.
+  // Authenticity audit is regenerated on every render of this page (Gemini call or mock fallback) —
+  // there is no caching/persistence of the audit result. GET /api/verify-authenticity duplicates
+  // this same call for client-triggered re-checks.
   const feedbacks = await getProductFeedback(id);
   const audit = await generateAuthenticityAudit(product, feedbacks);
 

@@ -18,7 +18,7 @@ interface ArtisansUsersViewProps {
 
 // `artisans` here is seed data + in-memory status edits (getArtisansList/updateArtisanStatus in
 // lib/supabase/admin.ts) — it is NOT read from the real `artisans` Supabase table, and
-// onUpdateStatus does not persist past a server restart. See docs/features/admin-cms.md.
+// onUpdateStatus does not persist past a server restart.
 export default function ArtisansUsersView({
   artisans,
   onUpdateStatus,

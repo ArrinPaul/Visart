@@ -23,7 +23,7 @@ export interface AdminDashboardStats {
   estimatedCatalogValueInr: number;
   averageReadinessScore: number;
   // Hardcoded in lib/supabase/admin.ts#getAdminDashboardStats — not derived from any historical
-  // data, since nothing in this app stores a time series. See docs/TECHNICAL_DEBT.md.
+  // data, since nothing in this app stores a time series.
   growthRates: {
     products: number;
     artisans: number;

@@ -23,10 +23,6 @@ const MAX_FIELD_LENGTH = 256;
 const TIMING_EQUALIZATION_HASH =
   "scrypt$1$16384$8$1$64$crPNQHLxlBwR2QD1nRHqng==$ll4K7MuBLuiO+2IPVJbUCsM9mYSyNpEp/7ntzV2slH8JDQTalybSnTkUlH0JOtQegbLkZl74wDiSlHe38iGEcw==";
 
-// Every rejection path returns this exact body/status, regardless of *why* the attempt failed
-// (unknown email, inactive account, wrong password, or malformed input) — see
-// lib/auth/loginDecision.ts for the extracted decision logic this depends on, and
-// docs/ADMIN_SESSIONS.md for why this matters (no account enumeration).
 function genericFailureResponse(): NextResponse {
   return NextResponse.json({ success: false, error: "Invalid email or password." }, { status: 401 });
 }

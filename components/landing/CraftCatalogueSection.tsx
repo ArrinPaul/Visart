@@ -8,7 +8,7 @@ import { SEED_PRODUCTS } from "@/lib/data/seed";
 
 // Despite the "Live Artisan Catalogue" label below, this always renders the fixed seed dataset
 // (lib/data/seed.ts), not products actually created via /create — there is no query against
-// real/recent products here. See docs/DATABASE.md for what seed data represents.
+// real/recent products here.
 export default function CraftCatalogueSection() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 

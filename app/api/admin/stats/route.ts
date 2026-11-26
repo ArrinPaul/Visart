@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { getAdminDashboardStats, getSystemHealthMetrics, getPerformanceAnalytics } from "@/lib/supabase/admin";
 
-// Requires an admin session. Note: several fields in the returned stats/health/
-// performance objects are hardcoded or randomized rather than measured — see
-// docs/TECHNICAL_DEBT.md (TD-005) and lib/supabase/admin.ts before treating this as live telemetry.
+// Requires an admin session.
 export async function GET(req: NextRequest) {
   const denied = await requireAdmin(req);
   if (denied) return denied;

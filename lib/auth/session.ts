@@ -148,10 +148,10 @@ export async function validateSessionToken(
 }
 
 /**
- * Convenience wrapper for future protected server handlers (Batch 3+): reads the admin session
- * cookie directly off a NextRequest and validates it. Deliberately does not read a token from
- * query strings, headers, or the request body — only the designated HttpOnly cookie is ever a
- * valid source of the session token.
+ * Convenience wrapper for future protected server handlers: reads the admin session cookie directly
+ * off a NextRequest and validates it. Deliberately does not read a token from query strings,
+ * headers, or the request body — only the designated HttpOnly cookie is ever a valid source of the
+ * session token.
  */
 export async function getAdminIdentityFromRequest(
   req: NextRequest,

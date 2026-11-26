@@ -1,82 +1,59 @@
 # VISART
 
-AI-assisted product listing studio for craft artisans, built on Next.js 16 + Google Gemini + Supabase. An artisan describes a handmade product (material, cost, time, location, optional photo); Gemini generates a market-ready listing (title/description, fair-trade pricing guidance, marketing copy, a Hindi + Kannada translation, a heritage story, and a readiness score); the listing is published to a public product page with an AI authenticity forensics report and buyer feedback.
+AI-assisted product listing studio for craft artisans. An artisan enters a few facts and a photo;
+Google Gemini writes the listing, price guidance, marketing copy, Hindi and Kannada translations and
+a heritage story. We are now adding our own photo checks (see the plan below).
 
-Full engineering documentation lives in **[`docs/`](docs/README.md)** — architecture, API/database reference, requirements, UML diagrams, and a full accounting of current security gaps and technical debt. Start there for anything beyond local setup.
+**Stack:** Next.js 16, React 19, TypeScript, Tailwind CSS 4, Supabase, Gemini, and a Python
+(FastAPI) service for photo checks.
 
-> **Before deploying this anywhere real users can reach it**, read [`docs/SECURITY.md`](docs/SECURITY.md) and [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md). Admin login and the admin API need a configured Supabase project, but the database's Row Level Security policies are still fully public, so data can be changed without logging in. This is documented in detail, not hidden — see [`docs/TECHNICAL_DEBT.md`](docs/TECHNICAL_DEBT.md) for the full list and recommended fixes.
+## Run
 
-## Problem Statement
-
-Traditional artisans often lack the time, language fluency, or e-commerce know-how to turn a handmade craft into a compelling, fairly-priced online listing. VISART's goal is to compress that gap: a few facts and a photo become a complete listing in one step, with voice dictation and multilingual output for accessibility, and buyer-facing authenticity signals to build trust in a handmade item's provenance.
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript 5.9 |
-| Styling | Tailwind CSS v4 |
-| AI | Google Gemini (`@google/genai`), structured JSON output, model-cascade fallback |
-| Database | Supabase (PostgreSQL + Storage) |
-| Validation | Zod |
-| Voice/Audio | Browser-native Web Speech API (`SpeechRecognition` + `SpeechSynthesis`) — no server-side speech processing |
-
-## Architecture (one paragraph)
-
-Single Next.js deployment: pages and API routes in one process, calling Gemini and Supabase directly from `lib/`. No separate backend service, queue, or auth provider. The app is designed to run fully with **zero external credentials** via a demo mode that swaps live Gemini/Supabase calls for deterministic mock data — see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/adr/001-demo-mode-dual-persistence.md`](docs/adr/001-demo-mode-dual-persistence.md) for how that works and its tradeoffs.
-
-## Getting Started
-
-### Prerequisites
-- Node.js 18+ (20+ recommended)
-- npm
-
-### Install & Run
 ```bash
-git clone <this-repo>
-cd Visart
 npm install
-npm run dev
+npm run dev          # http://localhost:3000
 ```
-Open [http://localhost:3000](http://localhost:3000). No environment variables are required to run the app — it starts in demo mode using bundled seed/mock data.
 
-### Configuring Real Mode (optional)
-Copy `.env.example` to `.env.local` and fill in:
-- `GEMINI_API_KEY` — enables real AI generation (from [Google AI Studio](https://aistudio.google.com/)).
-- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — enables real database persistence (run [`supabase/schema.sql`](supabase/schema.sql) against your Supabase project first; there is no migration tool, it's a single manual SQL file).
-- Set `NEXT_PUBLIC_VISART_DEMO_MODE=false` to require real credentials instead of falling back to mocks.
+With no configuration the app runs in demo mode on sample data. `/admin` needs a Supabase project:
+see [docs/ADMIN_PROVISIONING.md](docs/ADMIN_PROVISIONING.md).
 
-Full variable reference: [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md).
+## Configuration
 
-### Scripts
-```bash
-npm run dev     # start dev server (Turbopack)
-npm run build   # production build
-npm run start   # run a production build
-npm run lint    # ESLint
-```
-Tests: `npm run test:auth`, `npm run test:ml`, and `pytest` inside [`ml-service/`](ml-service/README.md).
+Copy `.env.example` to `.env.local`.
 
-## Documentation Map
-
-| Doc | Covers |
+| Variable | Used for |
 |---|---|
-| [`docs/README.md`](docs/README.md) | Full documentation index |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design, layers, demo mode |
-| [`docs/CODEBASE_MAP.md`](docs/CODEBASE_MAP.md) | Directory-by-directory file map |
-| [`docs/API.md`](docs/API.md) | Every API route, request/response, auth status |
-| [`docs/DATABASE.md`](docs/DATABASE.md) | Schema, RLS, what's real vs. localStorage-only |
-| [`docs/features/`](docs/features/) | One doc per major feature |
-| [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) | Functional & non-functional requirements |
-| [`docs/uml/`](docs/uml/) | Class, use-case, and ER diagrams |
-| [`docs/SECURITY.md`](docs/SECURITY.md) / [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md) | Access-control model and gaps |
-| [`docs/TECHNICAL_DEBT.md`](docs/TECHNICAL_DEBT.md) | Known issues, prioritized, with recommended fixes |
-| [`docs/DEVELOPMENT_GUIDE.md`](docs/DEVELOPMENT_GUIDE.md) | How to safely add/modify features |
+| `NEXT_PUBLIC_VISART_DEMO_MODE` | `false` turns demo mode off |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | Listing generation and text audit |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Database and image storage |
+| `SUPABASE_SERVICE_ROLE_KEY`, `APP_ORIGIN` | Admin login and photo checks (server only) |
+| `ML_SERVICE_URL`, `ML_SERVICE_SECRET` | Photo checks; see [ml-service/README.md](ml-service/README.md) |
 
-## Known Limitations
+## Layout
 
-This is a hackathon-stage build (see the footer credit in [`app/layout.tsx`](app/layout.tsx)), not a production-hardened product. In short: no artisan accounts, fully public database write access, only partial automated tests, no deployment configuration, and several admin-dashboard metrics are illustrative rather than measured. None of this is hidden — [`docs/TECHNICAL_DEBT.md`](docs/TECHNICAL_DEBT.md) lists all of it with severity and recommended fixes, and inline code comments mark the specific lines involved.
+| Folder | Contents |
+|---|---|
+| `app/` | Pages and API routes |
+| `components/` | UI |
+| `lib/` | AI calls, authentication, photo checks, database access |
+| `ml-service/` | Python inference service |
+| `supabase/` | Schema and migrations |
 
-## Contributing
+## Checks
 
-Read [`docs/DEVELOPMENT_GUIDE.md`](docs/DEVELOPMENT_GUIDE.md) before making changes — it covers the add-a-feature workflow, schema-change workflow, and the project's one hard rule: **code change + documentation change = complete change**. If you change a feature, an API contract, the schema, or a security-relevant behavior, update the corresponding file(s) in `docs/` in the same change.
+```bash
+npm test && npm run lint && npm run build
+cd ml-service && .venv\Scripts\python -m pytest -q
+```
+
+## Photo checks project
+
+- [Design](docs/superpowers/specs/2026-11-26-craft-verification-engine-design.md)
+- [Week-by-week plan](docs/superpowers/plans/2026-11-26-craft-verification-engine-plan.md)
+
+## Security limits
+
+Do not put real user data in this app yet. The database rules in `supabase/schema.sql` allow anyone
+with the public key to read and change products and feedback, and the `/admin` screen reads and
+writes through that same key. Admin login protects the screen and the `/api/admin/*` routes only.
+There are no artisan accounts, and the public AI routes have no rate limit.

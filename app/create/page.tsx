@@ -91,10 +91,9 @@ export default function CreatePage() {
 
       const finalImageUrl = uploadRes?.url || formData.imagePreviewUrl || "";
 
-      // Step 3: Persist product & artisan data (Member C)
-      // Artisan name is hardcoded — this form never collects who the artisan actually is, so
-      // every listing created here is attributed to the same generic "Local Artisan" identity.
-      // See docs/AUTHENTICATION.md: there is no artisan account/identity concept anywhere.
+      // Step 3: Persist product & artisan data (Member C) Artisan name is hardcoded — this form
+      // never collects who the artisan actually is, so every listing created here is attributed to
+      // the same generic "Local Artisan" identity.
       const saved = await saveProduct({
         inputData: formData,
         generatedData: generation,

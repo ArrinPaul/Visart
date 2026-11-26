@@ -1,6 +1,5 @@
-// Minimal verification script — this repository has no test runner configured (no Jest/Vitest
-// in package.json; see docs/TESTING.md / Phase 0 audit TD-015). Rather than adding a test
-// framework dependency for one small utility, this file is a plain assertion script executed
+// Minimal verification script — this repository has no test runner configured. Rather than adding a
+// test framework dependency for one small utility, this file is a plain assertion script executed
 // directly via Node's built-in TypeScript support:
 //
 //   node --experimental-strip-types lib/auth/email.test.mts

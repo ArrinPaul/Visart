@@ -1,17 +1,11 @@
--- ==============================================================================
--- Migration: 0001_create_admin_users
--- Phase 1, Batch 1 — Admin Credentials Foundation
--- ==============================================================================
 --
 -- Purpose: introduce a dedicated `admin_users` table to back custom admin
 -- authentication (replacing the hardcoded, client-side-only credentials in
 -- components/admin/AdminLoginPage.tsx — that replacement happens in a later,
 -- separately reviewed batch; this migration only adds the table).
 --
--- This repository has no migration tool and no `supabase/migrations/` convention
--- prior to this file (supabase/schema.sql is the sole hand-maintained schema file,
--- applied manually — see docs/DATABASE.md and docs/DEPLOYMENT.md). This migration
--- follows the same manual-application model; see supabase/migrations/README.md
+-- This repository has no migration tool and no `supabase/migrations/` convention prior to this
+-- file. This migration follows the same manual-application model; see supabase/migrations/README.md
 -- for the exact application procedure.
 --
 -- Security posture (do not weaken without a documented reason):

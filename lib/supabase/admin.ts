@@ -26,8 +26,7 @@ const serverStartTime = Date.now();
 // read from Postgres. Only products/reviews (via getRecentProducts/getProductFeedback) touch
 // Supabase; artisans, customers, activity logs, and settings below are seeded constants backed by
 // an in-process Map/variable plus localStorage — there are no matching tables in
-// supabase/schema.sql. See docs/DATABASE.md "What Actually Reaches Postgres" and
-// docs/features/admin-cms.md before assuming any given admin view reflects live database state.
+// supabase/schema.sql.
 
 // Initial Seed Artisans
 const SEED_ARTISANS: ArtisanProfile[] = [
@@ -312,7 +311,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
     averageReadinessScore: avgReadiness,
     // Hardcoded literals, not computed from any historical snapshot — there is no time-series
     // storage anywhere in this app to derive a real growth rate from. Every call returns the same
-    // four numbers regardless of actual catalogue change. See docs/TECHNICAL_DEBT.md TD-005.
+    // four numbers regardless of actual catalogue change.
     growthRates: {
       products: 24.5,
       artisans: 18.2,
@@ -343,7 +342,7 @@ export async function getAdminProductsCMS(): Promise<AdminProductSummary[]> {
       readinessScore: prod.generated_data?.readiness?.overall || 90,
       authenticityStatus: hasFlagged ? "FLAGGED" : "VERIFIED",
       // Re-randomized on every call — not stored, not tracked per product. Refreshing the admin
-      // Products view changes every listed "inquiries" count. See docs/TECHNICAL_DEBT.md TD-005.
+      // Products view changes every listed "inquiries" count.
       totalInquiries: Math.floor(Math.random() * 12) + 3,
       reviewCount: prodReviews.length,
       averageRating: avgRating,
@@ -355,7 +354,7 @@ export async function getAdminProductsCMS(): Promise<AdminProductSummary[]> {
  * Toggle product published state
  */
 // No caller-identity check here or in the app/api/admin/products route that calls this — any
-// request reaching this function succeeds regardless of who sent it. See docs/SECURITY.md.
+// request reaching this function succeeds regardless of who sent it.
 export async function toggleProductPublish(
   productId: string,
   isPublished: boolean
@@ -402,10 +401,9 @@ export async function toggleProductPublish(
  */
 // Always returns true regardless of whether the Supabase delete actually succeeded — its error is
 // only console.warn'd, never checked. supabase/schema.sql defines no `delete` RLS policy on
-// `products`, so under RLS this Supabase call likely fails silently every time; the function
-// still reports success because the local/localStorage copy is removed unconditionally. Verify
-// against your own Supabase project before trusting this to actually delete rows. See
-// docs/DATABASE.md "Row Level Security".
+// `products`, so under RLS this Supabase call likely fails silently every time; the function still
+// reports success because the local/localStorage copy is removed unconditionally. Verify against
+// your own Supabase project before trusting this to actually delete rows.
 export async function deleteProductCMS(productId: string): Promise<boolean> {
   const product = await getProductById(productId);
   const title = product?.generated_data.product.title || productId;
@@ -542,10 +540,10 @@ export async function getAllReviewsCMS(): Promise<ReviewModerationItem[]> {
 /**
  * Update Review Moderation Status
  */
-// Moderation status lives only in localStorage (LOCAL_STORAGE_REVIEW_STATUS) — the
-// product_feedback table (supabase/schema.sql) has no status column at all, so this never writes
-// to Postgres. A different browser/device sees the review's default status (derived from
-// flaggedAsFake) rather than any moderation decision made elsewhere. See docs/DATABASE.md.
+// Moderation status lives only in localStorage (LOCAL_STORAGE_REVIEW_STATUS) — the product_feedback
+// table (supabase/schema.sql) has no status column at all, so this never writes to Postgres. A
+// different browser/device sees the review's default status (derived from flaggedAsFake) rather
+// than any moderation decision made elsewhere.
 export async function updateReviewStatus(
   reviewId: string,
   status: "APPROVED" | "PENDING" | "FLAGGED" | "REJECTED"
@@ -574,11 +572,6 @@ export async function updateReviewStatus(
 /**
  * System Health & Latency Monitor
  */
-// Only supabaseDb.status/latencyMs reflect a real check (one `select id limit 1` probe, timed).
-// geminiAi and audioEngine are hardcoded "healthy" with fixed latency numbers — no request is
-// actually made to Gemini or any audio subsystem here. uptimeSeconds adds a fixed +7200s (2h)
-// offset on top of real process uptime, so it never reads as "just started." See
-// docs/TECHNICAL_DEBT.md TD-005.
 export async function getSystemHealthMetrics(): Promise<SystemHealthMetrics> {
   const dbStart = performance.now();
   let dbStatus: "healthy" | "degraded" | "down" = "healthy";
@@ -620,9 +613,8 @@ export async function getSystemHealthMetrics(): Promise<SystemHealthMetrics> {
 /**
  * Performance & Latency Analytics
  */
-// Every field below is a hardcoded literal — no telemetry is collected or measured anywhere in
-// this codebase. This function always returns the identical object regardless of real traffic.
-// See docs/TECHNICAL_DEBT.md TD-005.
+// Every field below is a hardcoded literal — no telemetry is collected or measured anywhere in this
+// codebase. This function always returns the identical object regardless of real traffic.
 export async function getPerformanceAnalytics(): Promise<PerformanceMetrics> {
   return {
     generationLatency: {
@@ -654,10 +646,10 @@ export async function getAdminSettings(): Promise<AdminSystemSettings> {
   return getStored<AdminSystemSettings>(LOCAL_STORAGE_SETTINGS, memorySettings);
 }
 
-// Persisted to localStorage + an in-memory variable only — never to Supabase or any server
-// config. In particular, changing `geminiModel` here has no effect on which model
-// lib/ai/visart.ts / lib/ai/authenticity.ts actually call (those read process.env.GEMINI_MODEL at
-// request time, not this value). See docs/features/admin-cms.md.
+// Persisted to localStorage + an in-memory variable only — never to Supabase or any server config.
+// In particular, changing `geminiModel` here has no effect on which model lib/ai/visart.ts /
+// lib/ai/authenticity.ts actually call (those read process.env.GEMINI_MODEL at request time, not
+// this value).
 export async function updateAdminSettings(
   patch: Partial<AdminSystemSettings>
 ): Promise<AdminSystemSettings> {

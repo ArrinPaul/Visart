@@ -1,5 +1,5 @@
-// Server-only. Loads a product image from a stored URL without letting that URL (which anyone can
-// write, see docs/SECURITY.md) point the server at arbitrary hosts.
+// Server-only. Loads a product image from a stored URL without letting that URL point the server at
+// arbitrary hosts.
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 

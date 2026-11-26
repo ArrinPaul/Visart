@@ -1,4 +1,3 @@
-// Phase 1, Batch 1 — manual, one-time initial admin provisioning helper.
 //
 // What this script does:
 //   1. Prompts for an email address and a password interactively (password input is hidden,
