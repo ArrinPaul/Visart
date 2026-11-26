@@ -4,6 +4,8 @@ Findings only — nothing in this document has been fixed as part of this docume
 
 ## Critical
 
+> **Update (2026-11-26):** TD-001 and TD-002 are addressed: admin routes require a database session and the hardcoded demo login is removed. The `/admin` screen still reads and writes data from the browser, and TD-003 is unchanged. See [AUTHENTICATION.md](AUTHENTICATION.md). The two entries below are kept as history.
+
 ### TD-001 — No server-side authentication on any `/api/admin/*` route
 **Problem**: Zero auth/session/token check in any of the 6 admin route handlers. **Current implementation**: unconditional execution of the requested action. **Impact**: full read/write access to the entire admin surface for any network caller. **Risk**: Critical. **Recommended solution**: add a real session mechanism (e.g. Supabase Auth + a server-side session check in each route, or middleware) before any non-local deployment. **Complexity**: Medium (needs an auth provider decision + route-by-route guard + RLS policy rework, see TD-003). **Affected areas**: all [`app/api/admin/*`](../app/api/admin), `AUTHENTICATION.md`, `SECURITY.md`.
 

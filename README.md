@@ -4,7 +4,7 @@ AI-assisted product listing studio for craft artisans, built on Next.js 16 + Goo
 
 Full engineering documentation lives in **[`docs/`](docs/README.md)** — architecture, API/database reference, requirements, UML diagrams, and a full accounting of current security gaps and technical debt. Start there for anything beyond local setup.
 
-> **Before deploying this anywhere real users can reach it**, read [`docs/SECURITY.md`](docs/SECURITY.md) and [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md). The admin portal (`/admin`) and every `/api/admin/*` route currently have no real authentication or authorization, and the database's Row Level Security policies are fully public. This is documented in detail, not hidden — see [`docs/TECHNICAL_DEBT.md`](docs/TECHNICAL_DEBT.md) for the full list and recommended fixes.
+> **Before deploying this anywhere real users can reach it**, read [`docs/SECURITY.md`](docs/SECURITY.md) and [`docs/AUTHENTICATION.md`](docs/AUTHENTICATION.md). Admin login and the admin API need a configured Supabase project, but the database's Row Level Security policies are still fully public, so data can be changed without logging in. This is documented in detail, not hidden — see [`docs/TECHNICAL_DEBT.md`](docs/TECHNICAL_DEBT.md) for the full list and recommended fixes.
 
 ## Problem Statement
 
@@ -55,7 +55,7 @@ npm run build   # production build
 npm run start   # run a production build
 npm run lint    # ESLint
 ```
-No test script exists — see [`docs/TESTING.md`](docs/TESTING.md).
+Tests: `npm run test:auth`, `npm run test:ml`, and `pytest` inside [`ml-service/`](ml-service/README.md).
 
 ## Documentation Map
 
@@ -75,7 +75,7 @@ No test script exists — see [`docs/TESTING.md`](docs/TESTING.md).
 
 ## Known Limitations
 
-This is a hackathon-stage build (see the footer credit in [`app/layout.tsx`](app/layout.tsx)), not a production-hardened product. In short: no real authentication anywhere, fully public database write access, no automated tests, no deployment configuration, and several admin-dashboard metrics are illustrative rather than measured. None of this is hidden — [`docs/TECHNICAL_DEBT.md`](docs/TECHNICAL_DEBT.md) lists all of it with severity and recommended fixes, and inline code comments mark the specific lines involved.
+This is a hackathon-stage build (see the footer credit in [`app/layout.tsx`](app/layout.tsx)), not a production-hardened product. In short: no artisan accounts, fully public database write access, only partial automated tests, no deployment configuration, and several admin-dashboard metrics are illustrative rather than measured. None of this is hidden — [`docs/TECHNICAL_DEBT.md`](docs/TECHNICAL_DEBT.md) lists all of it with severity and recommended fixes, and inline code comments mark the specific lines involved.
 
 ## Contributing
 

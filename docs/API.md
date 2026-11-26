@@ -122,12 +122,19 @@ All endpoints are Next.js App Router Route Handlers under `app/api/`. Base path 
 
 ---
 
+## POST /api/verify-listing
+Runs photo checks for a saved product. Body `{ "productId": "..." }`; the `Origin` header must equal `APP_ORIGIN`. Returns `{ success, status }` where status is `checked`, `failed` or `pending`; scores are never returned. An existing result is not recomputed. Errors: 400, 403, 404, 429 (20 per minute per server process), 500, 503 when not configured. No login: artisans have no accounts.
+
+## Admin authentication
+- `POST /api/admin/auth/login` `{ email, password }` sets the session cookie.
+- `POST /api/admin/auth/logout` clears it.
+- `GET /api/admin/auth/session` returns `{ success, email }` or 401.
+
 ## Admin API — `app/api/admin/*`
 
-All six routes below share these properties, verified directly in their source (no route contains any header check, cookie check, or session check):
+All six data routes below:
 
-- **No authentication.** Anyone with network access to the server can call every endpoint below directly (e.g. with `curl`), bypassing `/admin`'s client-side login screen entirely.
-- **No authorization / role check.**
+- **Require an admin session** (401 otherwise); writes also require the app's `Origin` (403 otherwise).
 - Most underlying data is read from and written to `localStorage` inside `lib/supabase/admin.ts`, which only exists in the browser — so **calling these routes from a non-browser client (curl, a server-to-server call) reads/writes only the server's transient in-memory fallback**, not the same data an admin sees in their own browser tab. This is a data-consistency footgun as well as a security one; see [TECHNICAL_DEBT.md](TECHNICAL_DEBT.md).
 
 ### GET /api/admin/activity

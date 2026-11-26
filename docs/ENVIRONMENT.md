@@ -12,9 +12,17 @@ Source: `.env.example` (checked into the repo) and actual `process.env.*` reads 
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | No | Alternate/legacy name for the same anon key; `lib/supabase/config.ts` uses this as a fallback if `NEXT_PUBLIC_SUPABASE_ANON_KEY` is unset. | — |
 | `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` | No | Overrides the storage bucket name used for product image uploads. | `product-images` (default in `lib/supabase/config.ts`) |
 
+## Server-only variables for admin login and photo checks
+
+| Variable | Needed for | Purpose |
+|---|---|---|
+| `SUPABASE_SERVICE_ROLE_KEY` | Admin login, photo checks | Elevated database key. Never prefix with `NEXT_PUBLIC_`. |
+| `APP_ORIGIN` | Admin login, photo checks | Exact origin of the app, e.g. `http://localhost:3000`. |
+| `ML_SERVICE_URL` | Photo checks | Where `ml-service/` runs. |
+| `ML_SERVICE_SECRET` | Photo checks | Shared secret; set the same value for the ML service. |
+
 ## Not Present, Despite What You Might Expect
 
-- **`SUPABASE_SERVICE_ROLE_KEY`** — does not exist in `.env.example` and is not referenced anywhere in the code. `lib/supabase/admin.ts` (the "admin" library) uses the same public anon client as everything else — it has no elevated database privileges. Do not assume adding this variable would do anything without also writing new code to use it.
 - Any secret for a third-party analytics, payments, email, or SMS provider — none of these integrations exist in the codebase.
 
 ## `isSupabaseConfigured()` Logic (`lib/supabase/config.ts`)

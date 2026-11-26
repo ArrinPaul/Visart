@@ -52,7 +52,11 @@ Indexes: `idx_feedback_product_id`, `idx_feedback_created_at desc`.
 
 There is **no `status` column** for review moderation (approved/flagged/rejected) — the admin CMS's moderation status (`ReviewModerationItem.status`) is computed client-side from `flagged_as_fake` plus a `localStorage` override map; moderation actions in `/admin` never update this table.
 
-There is **no `users`, `customers`, `leads`, `orders`, `sessions`, or `settings` table.** Everything the admin CMS shows for artisans-directory metadata, customer leads, activity logs, and platform settings is either hardcoded seed data in `lib/supabase/admin.ts` or `localStorage`-only state.
+The base schema has **no `users`, `customers`, `leads`, `orders`, or `settings` table.** Everything the admin CMS shows for artisans-directory metadata, customer leads, activity logs, and platform settings is either hardcoded seed data in `lib/supabase/admin.ts` or `localStorage`-only state.
+
+## Tables added by migrations
+
+Apply manually from [`supabase/migrations/`](../supabase/migrations/README.md). All have RLS enabled with no policies, so only the service-role key can use them: `admin_users`, `admin_sessions` (admin login), `listing_checks`, `image_embeddings` (photo checks). None has been applied to a database by this repository's changes.
 
 ## Entity-Relationship Diagram
 

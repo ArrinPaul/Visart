@@ -1,4 +1,5 @@
 # Security
+> **Update (2026-11-26):** the admin API and login findings below are addressed (see [AUTHENTICATION.md](AUTHENTICATION.md)). The public RLS and storage findings still apply, including to the `/admin` screen's own data calls.
 
 This document states facts found in the code and their concrete impact. It does not fix anything — fixes belong in [TECHNICAL_DEBT.md](TECHNICAL_DEBT.md)-tracked work, by explicit decision (this documentation pass is not authorized to change application behavior).
 

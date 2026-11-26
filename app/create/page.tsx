@@ -136,6 +136,16 @@ export default function CreatePage() {
         console.log(`[VISART] Pipeline complete in ${totalElapsed}ms. Product ID: ${saved.id}`);
       }
 
+      // Photo checks run in the background and never block publishing. Skipped in demo mode.
+      if (process.env.NEXT_PUBLIC_VISART_DEMO_MODE === "false") {
+        void fetch("/api/verify-listing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: saved.id }),
+          keepalive: true,
+        }).catch(() => undefined);
+      }
+
       createdProductIdRef.current = saved.id;
       setCreatedProductId(saved.id);
       setIsBackendComplete(true);
