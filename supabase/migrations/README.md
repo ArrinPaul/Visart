@@ -63,3 +63,16 @@ Requires `0001_create_admin_users.sql` to already be applied (this migration's
 
 This migration has **not** been applied to any database as part of this change —
 applying it is an explicit, separate operational step for the project owner.
+
+## How to apply `0003_create_ml_tables.sql`
+
+Requires `supabase/schema.sql` and `0001_create_admin_users.sql` to be applied first. Run the full
+file in the SQL Editor, then confirm that both tables have RLS enabled and no policies:
+
+```sql
+select relname, relrowsecurity from pg_class where relname in ('listing_checks', 'image_embeddings');
+select tablename, policyname from pg_policies where tablename in ('listing_checks', 'image_embeddings');
+-- expect: both true, and zero policy rows
+```
+
+This migration has **not** been applied to or run against any database yet.
