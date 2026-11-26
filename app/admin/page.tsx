@@ -48,24 +48,18 @@ import {
 import { updateProductData } from "@/lib/supabase/products";
 
 export default function AdminPage() {
-  // SECURITY: this is not a real auth gate. It defaults to true, and the only way it flips to
-  // false is the localStorage read below finding the literal string "unauthenticated" — nothing
-  // in this app ever writes that value. No app/api/admin/* route checks this state either, so it
-  // is UI-only. See docs/AUTHENTICATION.md and docs/TECHNICAL_DEBT.md (TD-001) before changing
-  // anything that assumes this flag means the request is actually privileged.
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  // Mirrors the server session; null while it is being checked. This only controls what is rendered:
+  // the data calls below still use the public Supabase key (see docs/AUTHENTICATION.md).
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [currentView, setCurrentView] = useState<AdminView>("dashboard");
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const session = localStorage.getItem("visart_admin_session");
-      if (session === "unauthenticated") {
-        setIsAuthenticated(false);
-      }
-    }
+    fetch("/api/admin/auth/session", { cache: "no-store" })
+      .then((res) => setIsAuthenticated(res.ok))
+      .catch(() => setIsAuthenticated(false));
   }, []);
 
   // Data states
@@ -124,8 +118,8 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    loadAllData();
-  }, []);
+    if (isAuthenticated) loadAllData();
+  }, [isAuthenticated]);
 
   // Handlers
   const handleTogglePublish = async (productId: string, isPublished: boolean) => {
@@ -278,15 +272,16 @@ export default function AdminPage() {
     }
   };
 
-  if (!isAuthenticated) {
+  if (isAuthenticated === null) {
     return (
-      <AdminLoginPage
-        onLoginSuccess={() => {
-          setIsAuthenticated(true);
-          loadAllData();
-        }}
-      />
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-xs font-semibold text-[#68655F]">Checking your session...</p>
+      </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <AdminLoginPage onLoginSuccess={() => setIsAuthenticated(true)} />;
   }
 
   return (
@@ -298,11 +293,11 @@ export default function AdminPage() {
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed(!collapsed)}
         reviewPendingCount={pendingReviewCount}
-        onLogout={() => {
-          if (typeof window !== "undefined") {
-            localStorage.setItem("visart_admin_session", "unauthenticated");
-          }
-          setIsAuthenticated(false);
+        onLogout={async () => {
+          const res = await fetch("/api/admin/auth/logout", { method: "POST" }).catch(() => null);
+          // Stay signed in on screen if the server did not clear the cookie.
+          if (res?.ok) setIsAuthenticated(false);
+          else window.alert("Sign out failed. Please try again.");
         }}
       />
 
