@@ -1,15 +1,9 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import {
-  Search,
   PlusCircle,
   RefreshCw,
-  Bell,
-  CheckCircle2,
-  AlertTriangle,
-  ShoppingBag,
 } from "lucide-react";
 import type { AdminView, SystemHealthMetrics } from "@/types/admin";
 
@@ -65,7 +59,6 @@ export default function AdminHeader({
   onRefresh,
   refreshing,
   health,
-  onQuickNewProduct,
 }: AdminHeaderProps) {
   const currentMeta = VIEW_TITLES[currentView] || VIEW_TITLES.dashboard;
 

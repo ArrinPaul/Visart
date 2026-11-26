@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { ShieldCheck, Search, Sparkles, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
+import { ShieldCheck, CheckCircle2 } from "lucide-react";
 import FadeIn from "@/components/motion/FadeIn";
 
 export default function AuthenticityFeatureSection() {

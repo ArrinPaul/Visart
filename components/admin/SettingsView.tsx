@@ -2,11 +2,9 @@
 
 import React, { useState } from "react";
 import {
-  Settings,
   Save,
   Sparkles,
   Shield,
-  Volume2,
   Sliders,
   CheckCircle,
 } from "lucide-react";

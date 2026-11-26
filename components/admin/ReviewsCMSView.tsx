@@ -1,14 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  MessageSquareCheck,
   Search,
-  Filter,
-  ShieldCheck,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
   Eye,
   Star,
   Sparkles,

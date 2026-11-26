@@ -1,13 +1,11 @@
 "use client";
 
-import React from "react";
 import {
   Package,
   Users,
   UserCheck,
   MessageSquareCheck,
   TrendingUp,
-  ShieldCheck,
   IndianRupee,
   Sparkles,
   ArrowUpRight,

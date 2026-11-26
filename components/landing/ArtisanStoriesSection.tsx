@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { Quote, Sparkles, MapPin, Award } from "lucide-react";
+import { Quote, MapPin, Award } from "lucide-react";
 import FadeIn from "@/components/motion/FadeIn";
 
 export default function ArtisanStoriesSection() {

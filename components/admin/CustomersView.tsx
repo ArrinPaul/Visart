@@ -2,16 +2,13 @@
 
 import React, { useState } from "react";
 import {
-  UserCheck,
   Search,
   PlusCircle,
   Phone,
   Mail,
   MapPin,
   MessageCircle,
-  Tag,
   CheckCircle2,
-  Calendar,
 } from "lucide-react";
 import type { CustomerLead } from "@/types/admin";
 

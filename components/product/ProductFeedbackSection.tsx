@@ -8,13 +8,11 @@ import {
   AlertTriangle,
   MessageSquare,
   Sparkles,
-  ThumbsUp,
   UserCheck,
   Plus,
   X,
   MapPin,
   Check,
-  Info,
 } from "lucide-react";
 import type {
   CustomerFeedback,

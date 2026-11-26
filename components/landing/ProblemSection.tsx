@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import FadeIn from "@/components/motion/FadeIn";
 import { Camera, Sparkles, Share2, ArrowRight } from "lucide-react";
 

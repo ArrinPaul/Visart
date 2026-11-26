@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Button from "@/components/ui/Button";
 import FadeIn from "@/components/motion/FadeIn";
 import { PlusCircle, Sparkles, LayoutDashboard, ArrowRight } from "lucide-react";

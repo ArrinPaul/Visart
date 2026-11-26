@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { ProductFormData } from "@/types/frontend";

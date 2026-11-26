@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
 import FadeIn from "@/components/motion/FadeIn";
 import Score from "@/components/ui/Score";
 import Badge from "@/components/ui/Badge";
-import { Sparkles, Check, Globe2, IndianRupee, Layers } from "lucide-react";
+import { Sparkles, Check, Globe2 } from "lucide-react";
 import { demoProduct } from "@/lib/demo/demoProduct";
 
 export default function TransformationSection() {

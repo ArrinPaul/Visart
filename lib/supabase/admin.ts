@@ -11,11 +11,9 @@ import type {
   ActivityActionType,
 } from "@/types/admin";
 import type { ProductRecord } from "@/types/visart";
-import type { CustomerFeedback } from "@/types/feedback";
 import { getRecentProducts, getProductById } from "./products";
 import { getProductFeedback } from "./feedback";
 import { supabase, isSupabaseLive, getSupabaseClient } from "./client";
-import { SEED_PRODUCTS } from "@/lib/data/seed";
 
 const LOCAL_STORAGE_CUSTOMERS = "visart_admin_customers";
 const LOCAL_STORAGE_ACTIVITY = "visart_admin_activity_logs";

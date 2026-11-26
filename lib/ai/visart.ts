@@ -1,4 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
+import { generateWithFallback, getGeminiClient } from "./gemini";
 import { VisartInput, VisartGeneration, VisartGenerationSchema } from "@/lib/validation/visart";
 
 const visartResponseSchema = {
@@ -124,52 +125,6 @@ const visartResponseSchema = {
   ],
 };
 
-function getGeminiClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured on the server.");
-  }
-  return new GoogleGenAI({ apiKey });
-}
-
-// Tries GEMINI_MODEL first, then this hardcoded fallback roster in order, on transient errors
-// (see isTransientError below). generateVisartListing retries each candidate twice before moving
-// to the next; if every candidate fails and demo mode is on, getMockGeneration() is returned
-// instead of throwing. Keep this list and lib/ai/authenticity.ts's copy in sync if it changes.
-function getCandidateModels(): string[] {
-  return Array.from(
-    new Set(
-      [
-        process.env.GEMINI_MODEL,
-        "gemini-3.5-flash",
-        "gemini-3.5-flash-lite",
-        "gemini-3.6-flash",
-        "gemini-3.1-flash-lite",
-        "gemini-3.7-flash",
-      ].filter(Boolean) as string[]
-    )
-  );
-}
-
-function isTransientError(errMsg: string): boolean {
-  const lower = errMsg.toLowerCase();
-  return (
-    lower.includes("503") ||
-    lower.includes("unavailable") ||
-    lower.includes("429") ||
-    lower.includes("high demand") ||
-    lower.includes("resource_exhausted") ||
-    lower.includes("fetch failed") ||
-    lower.includes("econnreset") ||
-    lower.includes("etimedout") ||
-    lower.includes("timeout") ||
-    lower.includes("socket") ||
-    lower.includes("overloaded") ||
-    lower.includes("not found") ||
-    lower.includes("404")
-  );
-}
-
 export function getMockGeneration(input: VisartInput): VisartGeneration {
   const productNameText = input.productName ? input.productName.trim() : `Handcrafted ${input.location} ${input.material} Craft`;
   const title = input.productName || `Handcrafted ${input.location} ${input.material} Craft`;
@@ -291,49 +246,11 @@ Rules & Guidelines:
       });
     }
 
-    let response;
-    let lastError: unknown;
-    const candidateModels = getCandidateModels();
-
-    for (const model of candidateModels) {
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-          const t0 = performance.now();
-          if (process.env.NODE_ENV === "development") {
-            console.log(`[VISART] Gemini request start (attempt ${attempt}/2): model=${model}`);
-          }
-
-          response = await ai.models.generateContent({
-            model,
-            contents,
-            config: {
-              responseMimeType: "application/json",
-              responseSchema: visartResponseSchema,
-            },
-          });
-
-          const t1 = performance.now();
-          if (process.env.NODE_ENV === "development") {
-            console.log(`[VISART] Gemini request completion (${model}): ${(t1 - t0).toFixed(2)}ms`);
-          }
-          if (response?.text) break;
-        } catch (err: unknown) {
-          lastError = err;
-          const errMsg = err instanceof Error ? err.message : String(err);
-          if (isTransientError(errMsg)) {
-            const delayMs = attempt * 1200;
-            console.warn(
-              `[VISART] Gemini transient error on attempt ${attempt} with model ${model} (${errMsg}), retrying in ${delayMs}ms...`
-            );
-            await new Promise((r) => setTimeout(r, delayMs));
-          } else {
-            console.warn(`[VISART] Model ${model} failed (${errMsg}), switching to fallback model...`);
-            break;
-          }
-        }
-      }
-      if (response?.text) break;
-    }
+    const { response, lastError } = await generateWithFallback(
+      ai,
+      { contents, config: { responseMimeType: "application/json", responseSchema: visartResponseSchema } },
+      { attempts: 2, delayMs: 1200, label: "VISART Gemini" }
+    );
 
     if (!response?.text) {
       if (isDemoMode) {
@@ -345,29 +262,9 @@ Rules & Guidelines:
 
     const text = response.text;
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("[VISART] Gemini raw response text type:", typeof text);
-      console.log("[VISART] Gemini raw response text length:", text.length);
-    }
-
-    const val0 = performance.now();
     const parsed = JSON.parse(text);
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("[VISART] Parsed JSON top-level keys:", Object.keys(parsed));
-      console.log("[VISART] parsed.product exists:", Boolean(parsed.product));
-      console.log("[VISART] parsed.pricing exists:", Boolean(parsed.pricing));
-      console.log("[VISART] parsed.marketing exists:", Boolean(parsed.marketing));
-      console.log("[VISART] parsed.translations exists:", Boolean(parsed.translations));
-      console.log("[VISART] parsed.story exists:", Boolean(parsed.story));
-      console.log("[VISART] parsed.readiness exists:", Boolean(parsed.readiness));
-    }
-
     const validated = VisartGenerationSchema.parse(parsed);
-    const val1 = performance.now();
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[VISART] Gemini response validation completion: ${(val1 - val0).toFixed(2)}ms`);
-    }
 
     return {
       ...validated,

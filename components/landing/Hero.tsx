@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "@/components/ui/Button";
 import FadeIn from "@/components/motion/FadeIn";
 import {
@@ -8,9 +8,6 @@ import {
   ArrowRight,
   Sparkles,
   ShieldCheck,
-  Globe2,
-  IndianRupee,
-  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import { SEED_PRODUCTS } from "@/lib/data/seed";

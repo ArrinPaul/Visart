@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ProductRecord, VisartGeneration } from '@/types/visart';
@@ -38,7 +38,6 @@ export function WorkspaceContainer({
       if (requestedId && requestedId !== product.id) {
         getProductById(requestedId).then((found) => {
           if (found) {
-            console.log(`[VISART DEBUG] WorkspaceContainer hydrated requested product: "${found.generated_data.product.title}"`);
             setProduct(found);
           }
         });

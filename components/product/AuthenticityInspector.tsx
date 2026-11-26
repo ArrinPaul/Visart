@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ShieldCheck,
   CheckCircle2,
   AlertTriangle,
-  HelpCircle,
   Eye,
   Hand,
   FlaskConical,
   Sparkles,
-  ChevronDown,
-  ChevronUp,
   Award,
 } from "lucide-react";
 import type { AuthenticityAudit } from "@/types/feedback";
@@ -26,7 +23,6 @@ export function AuthenticityInspector({
   onOpenReportModal,
 }: AuthenticityInspectorProps) {
   const [activeTab, setActiveTab] = useState<"guide" | "markers" | "warnings">("guide");
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const getVerdictBadge = () => {
     switch (audit.verdict) {

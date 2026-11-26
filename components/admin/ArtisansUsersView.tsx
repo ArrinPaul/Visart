@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  Users,
   Search,
-  CheckCircle2,
-  Clock,
   Globe2,
   Phone,
   Package,
   Award,
   ShieldCheck,
-  Filter,
 } from "lucide-react";
 import type { ArtisanProfile } from "@/types/admin";
 

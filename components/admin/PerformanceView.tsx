@@ -1,14 +1,11 @@
 "use client";
 
-import React from "react";
 import {
-  Gauge,
   Zap,
   Server,
   Volume2,
   Clock,
   CheckCircle2,
-  Activity,
   Cpu,
   Database,
 } from "lucide-react";

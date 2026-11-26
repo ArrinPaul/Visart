@@ -1,14 +1,11 @@
 "use client";
 
-import React from "react";
 import {
   X,
   ShieldCheck,
-  AlertTriangle,
   CheckCircle2,
   XCircle,
   Sparkles,
-  UserCheck,
   Star,
 } from "lucide-react";
 import type { ReviewModerationItem } from "@/types/admin";

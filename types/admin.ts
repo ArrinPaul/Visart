@@ -1,5 +1,5 @@
-import type { ProductRecord, VisartGeneration } from "./visart";
-import type { CustomerFeedback, FeedbackAuthenticityRating } from "./feedback";
+import type { ProductRecord } from "./visart";
+import type { CustomerFeedback } from "./feedback";
 
 export type AdminView =
   | "dashboard"

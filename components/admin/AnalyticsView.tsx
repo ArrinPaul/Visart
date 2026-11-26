@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   TrendingUp,
-  BarChart3,
-  PieChart,
   MapPin,
   Calendar,
   Layers,
-  ArrowUpRight,
 } from "lucide-react";
 import type { PerformanceMetrics } from "@/types/admin";
 

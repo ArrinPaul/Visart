@@ -1,4 +1,3 @@
-import React from "react";
 import type { Metadata } from "next";
 import { getProductById } from "@/lib/supabase/products";
 import { ProductView } from "@/components/product/ProductView";

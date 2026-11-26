@@ -1,4 +1,3 @@
-import React from "react";
 import type { Metadata } from "next";
 import { getProductById, getRecentProducts } from "@/lib/supabase/products";
 import { WorkspaceContainer } from "@/components/workspace/WorkspaceContainer";

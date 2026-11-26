@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Sparkles, ArrowRight, ShieldCheck, MapPin, Eye } from "lucide-react";
 import FadeIn from "@/components/motion/FadeIn";

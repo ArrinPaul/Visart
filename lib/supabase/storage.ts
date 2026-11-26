@@ -15,9 +15,6 @@ const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
 
 export async function uploadProductImage(file: File): Promise<UploadImageResult> {
-  const uploadStart = performance.now();
-  console.log("[VISART] Image upload start");
-
   if (!file) {
     return { success: false, url: "", error: "No file provided" };
   }
@@ -64,8 +61,6 @@ export async function uploadProductImage(file: File): Promise<UploadImageResult>
           .getPublicUrl(uploadData.path);
 
         if (publicUrlData?.publicUrl) {
-          const uploadEnd = performance.now();
-          console.log(`[VISART] Image upload completion: ${(uploadEnd - uploadStart).toFixed(2)}ms (Supabase Storage)`);
           return { success: true, url: publicUrlData.publicUrl };
         }
       }
@@ -81,8 +76,6 @@ export async function uploadProductImage(file: File): Promise<UploadImageResult>
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const uploadEnd = performance.now();
-        console.log(`[VISART] Image upload completion: ${(uploadEnd - uploadStart).toFixed(2)}ms (Data URL fallback)`);
         resolve({
           success: true,
           url: reader.result as string,

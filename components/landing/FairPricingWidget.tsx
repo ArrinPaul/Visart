@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { IndianRupee, Sparkles, Clock, ShieldCheck, ArrowRight, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import FadeIn from "@/components/motion/FadeIn";
 

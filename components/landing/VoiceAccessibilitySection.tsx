@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Mic, Volume2, Globe2, Sparkles, Check, Play, Pause } from "lucide-react";
+import { useState } from "react";
+import { Mic, Volume2, Globe2, Check, Pause } from "lucide-react";
 import FadeIn from "@/components/motion/FadeIn";
 
 // Marketing demo only: `samples` below are fixed, hand-written strings, not real /create output.

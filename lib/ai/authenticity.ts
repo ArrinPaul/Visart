@@ -1,56 +1,11 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import type { ProductRecord, ProductInputData, VisartGeneration } from "@/types/visart";
+import { Type } from "@google/genai";
+import { generateWithFallback, getGeminiClient } from "./gemini";
+import type { ProductRecord } from "@/types/visart";
 import type {
   AuthenticityAudit,
   CustomerFeedback,
   SubmitFeedbackInput,
 } from "@/types/feedback";
-
-function getGeminiClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured on the server.");
-  }
-  return new GoogleGenAI({ apiKey });
-}
-
-// Same fallback roster and retry pattern as getCandidateModels() in lib/ai/visart.ts — kept as a
-// separate copy rather than a shared import, so if you change one cascade, check whether the
-// other (visart.ts's listing generation, or this file's audit/feedback-risk generation) needs the
-// same change. See docs/ARCHITECTURE.md for the shared cascade behavior.
-function getCandidateModels(): string[] {
-  return Array.from(
-    new Set(
-      [
-        process.env.GEMINI_MODEL,
-        "gemini-3.5-flash",
-        "gemini-3.5-flash-lite",
-        "gemini-3.6-flash",
-        "gemini-3.1-flash-lite",
-        "gemini-3.7-flash",
-      ].filter(Boolean) as string[]
-    )
-  );
-}
-
-function isTransientError(errMsg: string): boolean {
-  const lower = errMsg.toLowerCase();
-  return (
-    lower.includes("503") ||
-    lower.includes("unavailable") ||
-    lower.includes("429") ||
-    lower.includes("high demand") ||
-    lower.includes("resource_exhausted") ||
-    lower.includes("fetch failed") ||
-    lower.includes("econnreset") ||
-    lower.includes("etimedout") ||
-    lower.includes("timeout") ||
-    lower.includes("socket") ||
-    lower.includes("overloaded") ||
-    lower.includes("not found") ||
-    lower.includes("404")
-  );
-}
 
 const authenticityAuditSchema = {
   type: Type.OBJECT,
@@ -267,36 +222,11 @@ TASKS:
 Output JSON strictly adhering to schema.`;
 
   try {
-    const ai = getGeminiClient();
-    const candidateModels = getCandidateModels();
-    let response;
-
-    for (const model of candidateModels) {
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-          response = await ai.models.generateContent({
-            model,
-            contents: [prompt],
-            config: {
-              responseMimeType: "application/json",
-              responseSchema: authenticityAuditSchema,
-            },
-          });
-          if (response?.text) break;
-        } catch (err: unknown) {
-          const errMsg = err instanceof Error ? err.message : String(err);
-          if (isTransientError(errMsg)) {
-            console.warn(
-              `[VISART Authenticity AI] Transient issue with model ${model} (attempt ${attempt}): ${errMsg}. Retrying or switching model...`
-            );
-            await new Promise((r) => setTimeout(r, attempt * 1000));
-          } else {
-            break;
-          }
-        }
-      }
-      if (response?.text) break;
-    }
+    const { response } = await generateWithFallback(
+      getGeminiClient(),
+      { contents: [prompt], config: { responseMimeType: "application/json", responseSchema: authenticityAuditSchema } },
+      { attempts: 2, delayMs: 1000, label: "VISART Authenticity AI" }
+    );
 
     const text = response?.text;
     if (!text) {
@@ -357,8 +287,6 @@ export async function analyzeFeedbackWithGemini(
   counterfeitRiskAssessment: string;
   flaggedKeywords: string[];
 }> {
-  const isDemoMode = process.env.NEXT_PUBLIC_VISART_DEMO_MODE !== "false";
-
   // Quick heuristic check
   const fakeKeywords = [
     "fake",
@@ -409,26 +337,11 @@ CUSTOMER REVIEW:
 Determine risk score (0-100), concise assessment, and extracted fake-signal keywords.`;
 
   try {
-    const ai = getGeminiClient();
-    const candidateModels = getCandidateModels();
-    let response;
-
-    for (const model of candidateModels) {
-      try {
-        response = await ai.models.generateContent({
-          model,
-          contents: [prompt],
-          config: {
-            responseMimeType: "application/json",
-            responseSchema: feedbackRiskAnalysisSchema,
-          },
-        });
-        if (response?.text) break;
-      } catch (err) {
-        const errMsg = err instanceof Error ? err.message : String(err);
-        console.warn(`[VISART Feedback AI] Model ${model} failed (${errMsg}), attempting fallback...`);
-      }
-    }
+    const { response } = await generateWithFallback(
+      getGeminiClient(),
+      { contents: [prompt], config: { responseMimeType: "application/json", responseSchema: feedbackRiskAnalysisSchema } },
+      { attempts: 1, delayMs: 0, label: "VISART Feedback AI" }
+    );
 
     const parsed = JSON.parse(response?.text || "{}");
     return {

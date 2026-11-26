@@ -69,19 +69,8 @@ async function processImageForAI(file: File): Promise<{ imageBase64: string; mim
 // NEXT_PUBLIC_VISART_DEMO_MODE is explicitly "false".
 export async function generateListing(input: ProductFormData): Promise<VisartGeneration> {
   const isDemoMode = process.env.NEXT_PUBLIC_VISART_DEMO_MODE !== "false";
-  const start = performance.now();
-
-  console.log(`[VISART DEBUG] generationClient mode = ${isDemoMode ? "DEMO" : "REAL"}`);
 
   if (isDemoMode) {
-    console.log("[VISART DEBUG] [Demo Mode] Generating dynamic simulated listing for:", {
-      productName: input.productName,
-      material: input.material,
-      location: input.location,
-      productionCost: input.productionCost,
-      timeRequired: input.timeRequired,
-    });
-
     // Simulate realistic 2.0s network delay for processing state preview
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -96,8 +85,6 @@ export async function generateListing(input: ProductFormData): Promise<VisartGen
       imageUrl: input.imagePreviewUrl || undefined,
     });
 
-    const end = performance.now();
-    console.log(`[VISART DEBUG] [Demo Mode] Generation complete in ${(end - start).toFixed(2)}ms`);
     return dynamicMock;
   }
 
@@ -111,21 +98,11 @@ export async function generateListing(input: ProductFormData): Promise<VisartGen
       if (processed.imageBase64) {
         imageBase64 = processed.imageBase64;
         mimeType = processed.mimeType;
-        console.log(`[VISART DEBUG] Image prepared for multimodal AI analysis (${mimeType}, size: ${imageBase64.length} chars)`);
       }
     } catch (e) {
       console.warn("[VISART DEBUG] Failed to prepare image for AI, proceeding text-only:", e);
     }
   }
-
-  console.log("[VISART DEBUG] calling /api/generate with sanitized input:", {
-    productName: input.productName,
-    material: input.material,
-    location: input.location,
-    productionCost: input.productionCost,
-    timeRequired: input.timeRequired,
-    hasImage: Boolean(imageBase64),
-  });
 
   const numericCost = Number(input.productionCost.replace(/[^0-9.]/g, "")) || 0;
   const payload = {
@@ -148,16 +125,13 @@ export async function generateListing(input: ProductFormData): Promise<VisartGen
     body: JSON.stringify(payload),
   });
 
-  const end = performance.now();
-
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     const message = errorData.message || errorData.error || "Failed to generate listing from AI. Please try again.";
-    console.error(`[VISART DEBUG] [Real Mode] Generation failed after ${(end - start).toFixed(2)}ms:`, message);
+    console.error("[VISART] Generation failed:", message);
     throw new Error(message);
   }
 
   const data: VisartGeneration = await response.json();
-  console.log(`[VISART DEBUG] [Real Mode] Generation complete in ${(end - start).toFixed(2)}ms. Title: "${data.product.title}"`);
   return data;
 }

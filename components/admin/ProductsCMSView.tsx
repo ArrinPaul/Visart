@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   Search,
-  Filter,
-  Eye,
   Edit,
   Trash2,
   ExternalLink,
-  PlusCircle,
   Download,
-  IndianRupee,
   CheckCircle,
   XCircle,
   Sparkles,
