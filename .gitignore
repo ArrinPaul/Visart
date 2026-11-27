@@ -49,3 +49,6 @@ ml-service/data/
 
 # trained models are shared outside git
 ml-service/models/
+
+# shows a recognisable person; keep local
+ml-service/reports/figures/mistakes.png
