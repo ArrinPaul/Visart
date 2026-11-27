@@ -24,82 +24,9 @@
 //
 // (also wired up as `npm run provision:admin`)
 
-import { createInterface } from "node:readline";
 import { normalizeEmail } from "../lib/auth/email.ts";
 import { hashPassword } from "../lib/auth/password.ts";
-
-function readLine(promptText: string): Promise<string> {
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise((resolve) => {
-    rl.question(promptText, (answer) => {
-      rl.close();
-      resolve(answer);
-    });
-  });
-}
-
-// No hidden-input dependency exists in this repo (and none is added here per the "do not add a
-// dependency if Node's built-ins are sufficient" instruction) — this implements masked input by
-// hand using the raw TTY mode Node already exposes.
-function readHidden(promptText: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const stdin = process.stdin;
-
-    if (!stdin.isTTY) {
-      reject(
-        new Error(
-          "This script must be run interactively in a real terminal (stdin is not a TTY), " +
-            "so the password prompt can be hidden. Piping input is not supported."
-        )
-      );
-      return;
-    }
-
-    process.stdout.write(promptText);
-    stdin.resume();
-    stdin.setRawMode(true);
-    stdin.setEncoding("utf8");
-
-    let input = "";
-
-    const onData = (chunk: string) => {
-      for (const char of chunk) {
-        const code = char.charCodeAt(0);
-
-        if (char === "\n" || char === "\r") {
-          cleanup();
-          process.stdout.write("\n");
-          resolve(input);
-          return;
-        }
-
-        if (code === 3) {
-          // Ctrl+C
-          cleanup();
-          process.stdout.write("\n");
-          reject(new Error("Aborted by user"));
-          return;
-        }
-
-        if (code === 127 || code === 8) {
-          // Backspace/Delete
-          input = input.slice(0, -1);
-          continue;
-        }
-
-        input += char;
-      }
-    };
-
-    const cleanup = () => {
-      stdin.setRawMode(false);
-      stdin.pause();
-      stdin.removeListener("data", onData);
-    };
-
-    stdin.on("data", onData);
-  });
-}
+import { readHidden, readLine } from "./prompt.mts";
 
 function escapeSqlLiteral(value: string): string {
   return value.replace(/'/g, "''");

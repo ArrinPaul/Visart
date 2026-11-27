@@ -2,6 +2,9 @@
 
 There is no demo login and no public sign-up. Do this once per Supabase project.
 
+**Shortcut:** after step 1, run `npm run setup` in your own terminal. It asks for the keys and your
+admin email and password, writes `.env.local` and creates the account, replacing steps 2 to 4.
+
 1. In the Supabase SQL editor run `supabase/schema.sql` (if not already applied), then the files in
    `supabase/migrations/` in number order. See `supabase/migrations/README.md`.
 2. Run `npm run provision:admin` and enter an email and password. It runs locally and prints an

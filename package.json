@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:auth": "node --experimental-strip-types lib/auth/email.test.mts && node --experimental-strip-types lib/auth/password.test.mts && node --experimental-strip-types lib/auth/sessionToken.test.mts && node --experimental-strip-types lib/auth/sessionExpiry.test.mts && node --experimental-strip-types lib/auth/cookie.test.mts && node --experimental-strip-types lib/auth/origin.test.mts && node --experimental-strip-types lib/auth/loginDecision.test.mts && node --experimental-strip-types lib/auth/session.test.mts && node --experimental-strip-types lib/auth/requireAdmin.test.mts",
+    "test:auth": "node --experimental-strip-types lib/auth/email.test.mts && node --experimental-strip-types lib/auth/password.test.mts && node --experimental-strip-types lib/auth/sessionToken.test.mts && node --experimental-strip-types lib/auth/sessionExpiry.test.mts && node --experimental-strip-types lib/auth/cookie.test.mts && node --experimental-strip-types lib/auth/origin.test.mts && node --experimental-strip-types lib/auth/loginDecision.test.mts && node --experimental-strip-types lib/auth/session.test.mts && node --experimental-strip-types lib/auth/requireAdmin.test.mts && node --experimental-strip-types lib/setup/envFile.test.mts",
     "test": "npm run test:auth && npm run test:ml && npm run test:ai",
     "test:ai": "node --experimental-strip-types lib/ai/gemini.test.mts",
     "test:ml": "node --experimental-strip-types lib/ml/claim.test.mts && node --experimental-strip-types lib/ml/imageSource.test.mts && node --experimental-strip-types lib/ml/verifyListing.test.mts",
+    "setup": "node --experimental-strip-types scripts/setup-local.mts",
     "provision:admin": "node --experimental-strip-types scripts/provision-admin.mts"
   },
   "dependencies": {
