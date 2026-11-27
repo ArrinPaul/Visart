@@ -4,6 +4,7 @@ import hmac
 import io
 import logging
 import os
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
 
@@ -18,7 +19,14 @@ MODEL_VERSION = "quality-rules-1"
 DEFAULT_MODEL = Path(__file__).parent / "models" / "classifier.pt"
 log = logging.getLogger("visart.ml")
 
-app = FastAPI(title="VISART ML service")
+@asynccontextmanager
+async def lifespan(_app):
+    # Load models now: the first request would otherwise outlast the web app's 20 s timeout.
+    warm_up()
+    yield
+
+
+app = FastAPI(title="VISART ML service", lifespan=lifespan)
 
 
 @lru_cache(maxsize=2)
@@ -35,9 +43,23 @@ def load_embedder():
     return Embedder()
 
 
+def model_path() -> str:
+    return os.environ.get("ML_MODEL_PATH") or str(DEFAULT_MODEL)
+
+
+def warm_up():
+    try:
+        if Path(model_path()).is_file():
+            load_classifier(model_path())
+        if os.environ.get("ML_EMBEDDINGS", "on") != "off":
+            load_embedder()
+    except Exception:
+        log.exception("model warm-up failed")
+
+
 def classify(image):
     """(classification, version), or (None, None) when no usable model is present."""
-    path = os.environ.get("ML_MODEL_PATH") or str(DEFAULT_MODEL)
+    path = model_path()
     if not Path(path).is_file():
         return None, None
     try:

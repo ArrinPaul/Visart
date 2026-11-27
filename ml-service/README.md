@@ -23,3 +23,7 @@ See [DATA.md](DATA.md). `python manifest.py` counts the collected photos and lis
 Upload `colab/visart_training.ipynb` to Colab, choose a T4 GPU and run all. It downloads the data, cleans
 it, splits it, trains both models and gives you `visart_results.zip`. Unzip that into this folder to get
 `models/classifier.pt` and `reports/classifier.md`. After changing a script, run `python make_notebook.py`.
+
+## Duplicate test copies
+
+`python dupes.py` writes edited copies of the test photos to `data/duplicates/`.

@@ -99,3 +99,11 @@ def test_a_broken_model_file_does_not_break_quality_checks(monkeypatch, tmp_path
     monkeypatch.setenv("ML_MODEL_PATH", str(tmp_path / "bad.pt"))
     body = analyze(noise()).json()
     assert body["classification"] is None and body["quality"]["score"] == 100
+
+
+def test_the_model_is_loaded_at_startup(monkeypatch, tmp_path):
+    save(tmp_path / "m.pt", build("mobilenet_v3_large", pretrained=False), "mobilenet_v3_large", 0.0, "warm")
+    monkeypatch.setenv("ML_MODEL_PATH", str(tmp_path / "m.pt"))
+    app_module.load_classifier.cache_clear()
+    with TestClient(app):
+        assert app_module.load_classifier.cache_info().currsize == 1
