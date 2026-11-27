@@ -7,3 +7,8 @@ uvicorn==0.54.0
 # tests
 httpx==0.29.0
 pytest==9.2.0
+
+# scripts that need these are optional; the quality checks run without them
+torch
+torchvision
+open_clip_torch

@@ -46,3 +46,6 @@ __pycache__/
 
 # dataset photos are shared outside git
 ml-service/data/
+
+# trained models are shared outside git
+ml-service/models/

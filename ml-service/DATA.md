@@ -36,8 +36,18 @@ It adds new files to `data/manifest.csv`, counts them and lists problems. Fill i
 |---|---|
 | `source` | `own photo`, or the page address |
 | `licence` | `own`, `owner permission`, `CC BY 4.0` |
+| `author` | Who to credit (required for CC BY and CC BY-SA) |
 
 Do not use pictures from shopping sites or search results unless their licence clearly allows it.
+
+## Downloaded photos
+
+`python collect.py` adds openly licensed photos from Wikimedia Commons, the Cleveland Museum of
+Art and The Met, with source, licence and author filled in. They are training data only: they are
+mostly not artisan phone photos, and search results contain wrong items. Only Wikimedia Commons is
+switched on: on 2026-11-26 The Met search returned 410, Flickr and rawpixel refused automated
+downloads, and the Cleveland image server took 30 to 60 seconds per photo. Keep our own phone photos
+for the final test set.
 
 ## Sharing
 

@@ -14,7 +14,7 @@ from pathlib import Path
 from PIL import Image
 
 CLASSES = ("pottery", "wood", "textile", "metal", "bamboo")
-FIELDS = ("file", "class", "object_id", "source", "licence")
+FIELDS = ("file", "class", "object_id", "source", "licence", "author")
 EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 MIN_SIDE = 224
 TARGET_PER_CLASS = 300
@@ -59,7 +59,7 @@ def check(root: Path) -> dict:
             problems.append(f"{file}: unknown class '{craft}'")
             continue
 
-        row = rows.setdefault(file, {"file": file, "source": "", "licence": ""})
+        row = rows.setdefault(file, {"file": file, "source": "", "licence": "", "author": ""})
         row["class"], row["object_id"] = craft, object_id
         if not (row.get("source") or "").strip() or not (row.get("licence") or "").strip():
             problems.append(f"{file}: no source or licence")

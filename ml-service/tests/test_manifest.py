@@ -17,7 +17,7 @@ def problems(root):
 
 def fill_sources(root):
     path = root / "manifest.csv"
-    text = path.read_text(encoding="utf-8").replace(",,\n", ",own photo,team consent\n")
+    text = path.read_text(encoding="utf-8").replace(",,,\n", ",own photo,team consent,\n")
     path.write_text(text, encoding="utf-8")
 
 
