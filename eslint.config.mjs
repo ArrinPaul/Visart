@@ -8,6 +8,7 @@ export default [
       "node_modules/**",
       "out/**",
       "build/**",
+      "ml-service/**",
       "*.d.ts",
     ],
   },
