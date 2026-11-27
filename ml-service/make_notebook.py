@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).parent
-SCRIPTS = ("manifest.py", "collect.py", "embedder.py", "clean.py", "split.py", "classifier.py", "train.py")
+SCRIPTS = ("manifest.py", "collect.py", "embedder.py", "clean.py", "split.py", "classifier.py", "train.py", "evaluate.py")
 OUTPUT = HERE / "colab" / "visart_training.ipynb"
 
 SHOW_SAMPLES = """import random, matplotlib.pyplot as plt
@@ -22,7 +22,7 @@ for craft in CLASSES:
         plt.subplot(2, 8, i + 1); plt.imshow(Image.open('data/' + f)); plt.axis('off')
     plt.show()"""
 
-SAVE_RESULTS = """!zip -q -r visart_results.zip models reports data/manifest.csv data/split.csv
+SAVE_RESULTS = """!zip -q -r visart_results.zip models reports train_log.txt data/manifest.csv data/split.csv
 from google.colab import files
 files.download('visart_results.zip')"""
 
@@ -55,6 +55,8 @@ def build() -> dict:
         markdown("## 4. Split by object and train"),
         code("!python split.py data\n!python train.py data"),
         code("!cat reports/classifier.md"),
+        markdown("## Results for documentation: metrics and figures"),
+        code("%run evaluate.py data"),
         markdown("## 5. Download the results"),
         code(SAVE_RESULTS),
     ]

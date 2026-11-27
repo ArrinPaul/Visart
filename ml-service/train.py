@@ -37,6 +37,16 @@ AUGMENT = v2.Compose([
 ])
 
 
+LOG = Path("train_log.txt")  # read by evaluate.py for the training curves
+
+
+def log(line: str) -> None:
+    print(line, flush=True)
+    with LOG.open("a", encoding="utf-8") as handle:
+        handle.write(line + "
+")
+
+
 def load(root: Path, split_name: str):
     """Returns (resized uint8 images for augmentation, ready tensors, labels)."""
     split = read_split(root)
@@ -112,8 +122,8 @@ def train_one(arch, train_set, val_set):
             scheduler.step()
             predicted = predict(model, val_images).argmax(1)
             f1 = scores(confusion(val_labels, predicted), CLASSES)["macro_f1"]
-            print(f"{arch} {stage} {epoch + 1}/{epochs} loss {loss:.3f} val macro-F1 {f1:.3f} "
-                  f"({time.time() - started:.0f}s)", flush=True)
+            log(f"{arch} {stage} {epoch + 1}/{epochs} loss {loss:.3f} val macro-F1 {f1:.3f} "
+                f"({time.time() - started:.0f}s)")
             if f1 > best:
                 best, waited = f1, 0
                 best_state = {k: v.clone() for k, v in model.state_dict().items()}
@@ -156,6 +166,7 @@ def main(argv):
     sizes = [len(sets[n][2]) for n in ("train", "val", "test")]
     print("device:", DEVICE, "| images:", dict(zip(sets, sizes)), flush=True)
 
+    LOG.unlink(missing_ok=True)
     trained = {arch: train_one(arch, sets["train"], sets["val"]) for arch in ARCHITECTURES}
     results = {arch: f1 for arch, (_, f1) in trained.items()}
     arch = max(results, key=results.get)

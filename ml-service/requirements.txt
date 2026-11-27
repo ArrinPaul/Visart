@@ -12,3 +12,5 @@ pytest==9.2.0
 torch
 torchvision
 open_clip_torch
+scikit-learn
+matplotlib
