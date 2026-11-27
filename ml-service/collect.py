@@ -106,7 +106,7 @@ def fetch(url: str, tries: int = 4, timeout: int = 40) -> bytes:
                 raise RateLimited(f"{urllib.parse.urlsplit(url).netloc} asked to wait {wait}s") from error
             if error.code not in (429, 500, 502, 503) or attempt == tries - 1:
                 raise
-            time.sleep(wait or 5 * (attempt + 1))
+            time.sleep(max(wait, 5 * (attempt + 1)))  # never sooner than asked
         except (urllib.error.URLError, TimeoutError, ConnectionError):
             if attempt == tries - 1:
                 raise
@@ -184,7 +184,7 @@ def openverse(craft: str):
 
 
 def save(root: Path, craft: str, record: dict) -> dict | None:
-    data = fetch(record["url"], tries=2, timeout=15)  # skip slow files; there are plenty
+    data = fetch(record["url"], tries=4, timeout=15)  # skip slow files; there are plenty
     if len(data) > MAX_BYTES:
         return None
     with Image.open(io.BytesIO(data)) as image:

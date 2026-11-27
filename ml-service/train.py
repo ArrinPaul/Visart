@@ -43,8 +43,7 @@ LOG = Path("train_log.txt")  # read by evaluate.py for the training curves
 def log(line: str) -> None:
     print(line, flush=True)
     with LOG.open("a", encoding="utf-8") as handle:
-        handle.write(line + "
-")
+        handle.write(line + "\n")
 
 
 def load(root: Path, split_name: str):

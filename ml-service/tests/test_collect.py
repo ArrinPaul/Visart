@@ -1,3 +1,9 @@
+import io
+import urllib.error
+
+import pytest
+
+import collect
 from collect import allowed_licence, commons_record, object_id_for, openverse_record
 
 
@@ -57,3 +63,27 @@ def test_openverse_record_rejects_other_licences_and_small_files():
     base = {"id": "a", "url": "u", "license": "by-nc", "license_version": "2.0", "width": 900, "height": 900}
     assert openverse_record(base) is None
     assert openverse_record({**base, "license": "cc0", "width": 100}) is None
+
+
+def test_a_short_pause_is_waited_out(monkeypatch):
+    calls, naps = [], []
+
+    def urlopen(request, timeout):
+        calls.append(1)
+        if len(calls) < 3:
+            raise urllib.error.HTTPError(request.full_url, 429, "slow down", {"Retry-After": "1"}, None)
+        return io.BytesIO(b"ok")
+
+    monkeypatch.setattr(collect.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(collect.time, "sleep", naps.append)
+    assert collect.fetch("https://example.org/a", tries=4) == b"ok"
+    assert naps == [5, 10]
+
+
+def test_a_long_pause_stops_the_source(monkeypatch):
+    def urlopen(request, timeout):
+        raise urllib.error.HTTPError(request.full_url, 429, "stop", {"Retry-After": "600"}, None)
+
+    monkeypatch.setattr(collect.urllib.request, "urlopen", urlopen)
+    with pytest.raises(collect.RateLimited):
+        collect.fetch("https://example.org/a")
